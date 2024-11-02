@@ -1,0 +1,16 @@
+requests
+schedule
+fastapi
+uvicorn
+fastapi_utilities
+apscheduler
+pygame
+pytest
+httpx
+numpy
+pytest-asyncio
+dependency_injector
+sqlalchemy_utils
+pydantic-settings
+strawberry-graphql[fastapi]
+psutil
