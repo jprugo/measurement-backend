@@ -66,13 +66,12 @@ def delete_alarm_definition(
 ###############################################################
 
 
-# TODO: (ruedag.jp@gmail.com) Add feature to filter by date range
 @router.get("/alarm", tags=['alarm'])
 @inject
 def get_alarms(
     query: AlarmQueryUseCase = Depends(Provide[AppContainer.alarm.alarm_query]),
 ) -> AlarmResponse:
-    alarms: List[Alarm] = query.get_alarms()
+    alarms: List[Alarm] = query.get_last_n_alarms(n=15)
     return AlarmResponse(
         detail="ok",
         result=[AlarmSchema.from_orm(a) for a in alarms]

@@ -66,7 +66,7 @@ def delete_configuration(
     command.execute(request=request)
 
 
-@router.put("/setup")
+@router.get("/setup")
 @inject
 def setup(
     configuration_query: ConfigurationQueryUseCase = Depends(Provide[AppContainer.configuration.query]),

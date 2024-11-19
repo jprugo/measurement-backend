@@ -32,6 +32,7 @@ class AlarmDefinitionSchema(BaseModel):
     alarm_type: AlarmType
     created_at: datetime
     updated_at: Optional[datetime]
+    enabled: bool
 
     class Config:
         orm_mode = True

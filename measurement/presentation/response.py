@@ -86,6 +86,7 @@ class LastMeasurementSchema(BaseModel):
     value: float
     created_at: datetime
     measure_type: MeasureType
+    detail: Optional[str] = None
 
 
 class LastMeasurementResponse(BaseResponse):

@@ -123,9 +123,10 @@ class WorkerService:
         alarm_definitions = self.alarm_query.get_alarms_definition_by_measure_type(measure_type=measure.measure_type)
         if alarm_definitions:
             alarm_definition = alarm_definitions[0]
-            alarm_type = AlarmTypeFactory.get_alarm(alarm_type=alarm_definition.alarm_type)
-            if alarm_type.check(parametrized_value=alarm_definition.config_value, measures=self.measures_dict[measure.measure_type]):
-                self._trigger_alarm(alarm_definition=alarm_definition, measure_value= measure.value)
+            if alarm_definition.enabled:
+                alarm_type = AlarmTypeFactory.get_alarm(alarm_type=alarm_definition.alarm_type)
+                if alarm_type.check(parametrized_value=alarm_definition.config_value, measures=self.measures_dict[measure.measure_type]):
+                    self._trigger_alarm(alarm_definition=alarm_definition, measure_value= measure.value)
 
 
     def _get_next_position(self, current_enum: PositionType) -> PositionType:

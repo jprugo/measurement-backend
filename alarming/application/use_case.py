@@ -23,6 +23,11 @@ class AlarmQueryUseCase:
                 self.repo.get_all(session=session)
             )
             return alarms
+        
+    def get_last_n_alarms(self, n: int) -> List[Alarm]:
+        with self.db_session() as session:
+            alarms: List[Alarm] = session.query(Alarm).order_by(Alarm.created_at.desc()).limit(n).all()
+            return alarms
 
 
 class AlarmDefinitionQueryUseCase:
