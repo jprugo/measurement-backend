@@ -53,7 +53,8 @@ def get_last_measurements(
                 id=get_last_measurement_id(measure_type=m.measure_type, detail=m.detail),
                 value=m.value,
                 created_at=m.created_at,
-                measure_type=m.measure_type
+                measure_type=m.measure_type,
+                detail=m.detail
             ) for m in measurements
         ]
     )
