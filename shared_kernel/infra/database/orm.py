@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Text, Integer, Float, MetaData, String, Table, UniqueConstraint
+from sqlalchemy import Boolean, Column, DateTime, Text, Integer, Float, MetaData, String, Table, UniqueConstraint
 from sqlalchemy.orm import registry, composite
 
 from alarming.domain.model.value_object import AlarmType
@@ -44,6 +44,7 @@ alarms_definition_table = Table(
     Column("sound_path", String, nullable=False),
     Column("created_at", DateTime, nullable=False),
     Column("updated_at", DateTime, nullable=True),
+    Column("enabled", Boolean, nullable=False),
 )
 
 configuration_table = Table(
