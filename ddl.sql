@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS alarm_definitions (
     sound_path TEXT NOT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME,
+    enabled BOOLEAN,
     UNIQUE (alarm_type, measure_type)
 );
 
