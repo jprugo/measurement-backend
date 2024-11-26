@@ -75,6 +75,7 @@ class AlarmDefinitionService:
         self.repo.add(instance=alarm_definition, session=session)
         return alarm_definition
 
+
     def delete_alarm_definition(self, request: GetAlarmDefinitionRequest, session: Session) -> None:
         alarm_definition = self.repo.get_by_id(entity_id=request.id, session=session)
         if not alarm_definition:
