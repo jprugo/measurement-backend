@@ -1,7 +1,12 @@
-from datetime import datetime
 from pydantic import BaseModel
+from typing import List
 
-class ExportDTO(BaseModel):
-    start_date: datetime
-    end_date: datetime
-    mountpoint: str
+from measurement.domain.model.value_object import MeasureType, Unit
+
+class UpdateMeasurementSpecDTO(BaseModel):
+    measure_type: MeasureType
+    unit: Unit
+
+class UpdateSensorDTO(BaseModel):
+    sensor_id: int
+    measurement_specs: List[UpdateMeasurementSpecDTO]

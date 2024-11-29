@@ -1,17 +1,28 @@
 from typing import List, Optional
-import csv
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 
-from measurement.domain.model.services import GetMeasurementRequest, CreateMeasurementRequest
-from measurement.domain.model.value_object import MeasureType, SensorType
-from measurement.presentation.response import  MeasurementResponse, MeasurementSchema, LastMeasurementResponse, LastMeasurementSchema, get_last_measurement_id
-from measurement.application.use_case import MeasurementQueryUseCase, CreateMeasurementCommand
+from measurement.domain.model.services import CreateMeasurementRequest, CreateSensorRequest
+from measurement.domain.model.value_object import MeasureType
 from measurement.domain.model.aggregate import Measure
 
+from measurement.presentation.response import  (
+    MeasurementResponse, MeasurementSchema,
+    LastMeasurementResponse, LastMeasurementSchema,
+    SensorResponse, SensorSchema, MeasurementSpecSchema, SensorsResponse,
+    UnitResponse,
+    get_last_measurement_id
+)
+
+from measurement.application.use_case import (
+    CreateSensorCommand, GetSensorByIdRequest, MeasurementQueryUseCase, GetMeasurementRequest,
+    CreateMeasurementCommand,
+    SensorQueryUseCase, GetSensorRequest,
+    DeleteSensorCommand
+)
+
 from shared_kernel.infra.container import AppContainer
-from shared_kernel.infra import logger
 
 from datetime import datetime
 
@@ -69,49 +80,86 @@ def post_measurement(
     command.execute(request=request)
 
 
-
-@router.get("/export")
+@router.get("/units")
 @inject
-def export_measurements(
+def get_units(
     measure_type: MeasureType,
-    start_date: datetime,
-    end_date: datetime,
-    mountpoint: str,
-    detail: Optional[str] = None,
-    measurement_query: MeasurementQueryUseCase = Depends(Provide[AppContainer.measurement.query]),
-) -> MeasurementResponse:
-    request = GetMeasurementRequest(
-        measure_type= measure_type,
-        start_date= start_date,
-        end_date= end_date,
-        detail= detail
-    )
-    measurements: List[Measure] = measurement_query.get_measures(request=request)
-    export_all_items(measures= measurements, mountpoint= mountpoint, measure_type= measure_type)
-    return MeasurementResponse(
+) -> UnitResponse:
+    return UnitResponse(
         detail="ok",
-        result=[MeasurementSchema.from_orm(m) for m in measurements]
+        result=MeasureType.get_units(measure_type)
     )
 
 
-def export_all_items(measures: List[Measure], mountpoint: str, measure_type: MeasureType):
-        file_name = f'{mountpoint}/{measure_type.value}.csv'
-        _write_to_csv(measures, file_name)
+@router.post("/sensor")
+@inject
+def create_sensor(
+    request: CreateSensorRequest = Depends(),
+    command:  CreateSensorCommand = Depends(Provide[AppContainer.measurement.create_sensor_command]),
+) -> None:
+    command.execute(request=request)
 
 
-def _write_to_csv(data: List[Measure], filename: str):
-    if data:
-        data_dicts = [
-            {key: value for key, value in obj.__dict__.items() if not key.startswith('_')}
-            for obj in data
+@router.get("/sensor")
+@inject
+def get_sensor(
+    measure_type: MeasureType,
+    query:  SensorQueryUseCase = Depends(Provide[AppContainer.measurement.sensor_query]),
+) -> SensorResponse:
+    sensor= query.get_sensor(
+        request=GetSensorRequest(
+            measure_type=measure_type    
+        )
+    )
+    schema = None
+    if sensor:
+        schema = SensorSchema(
+            id=sensor.id,
+            brand=sensor.brand,
+            reference=sensor.reference,
+            sensor_type=sensor.sensor_type,
+            measurement_spec=[
+                MeasurementSpecSchema(
+                    measure_type=m.measure_type,
+                    unit=m.unit,
+                ) for m in sensor.measurement_specs
+            ]
+        )
+    return SensorResponse(
+        detail="ok",
+        result=schema
+    )
+
+
+@router.get("/sensor/all")
+@inject
+def get_all_sensor(
+    query:  SensorQueryUseCase = Depends(Provide[AppContainer.measurement.sensor_query]),
+) -> SensorsResponse:
+    sensors = query.get_all_sensor()
+    return SensorsResponse(
+        detail="ok",
+        result=[
+                SensorSchema(
+                    id=s.id,
+                    brand=s.brand,
+                    reference=s.reference,
+                    sensor_type=s.sensor_type,
+                    measurement_spec=[
+                        MeasurementSpecSchema(
+                            measure_type=m.measure_type,
+                            unit=m.unit,
+                        ) for m in s.measurement_specs
+                    ]
+                ) for s in sensors
         ]
-        
-        fieldnames = data_dicts[0].keys() if data_dicts else []
+    )
 
-        with open(filename, mode='w', newline='', encoding='utf-8') as archivo_csv:
-            writer = csv.DictWriter(archivo_csv, fieldnames=fieldnames)
-            writer.writeheader()
-            for row in data_dicts:
-                writer.writerow(row)
-    else:
-        logger.logger.info("No hay datos para escribir en el archivo CSV.")
+
+@router.delete("/sensor")
+@inject
+def delete_sensor(
+    request: GetSensorByIdRequest = Depends(),
+    command: DeleteSensorCommand = Depends(Provide[AppContainer.measurement.delete_sensor_command]),
+) -> None:
+    command.execute(request=request)

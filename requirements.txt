@@ -13,4 +13,3 @@ dependency_injector
 sqlalchemy_utils
 pydantic-settings
 strawberry-graphql[fastapi]
-psutil

@@ -1,8 +1,9 @@
 import requests
 
 from configuration.application.use_case import ConfigurationQueryUseCase, GetConfigurationRequest
-from measurement.domain.model.value_object import SensorType, MeasureDeviceResponse
+from measurement.domain.model.value_object import SensorType
 from shared_kernel.infra import logger
+from measurement.infra.api.response import MeasureDeviceResponse
 
 class DeviceApiService:
 
