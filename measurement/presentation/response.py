@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from measurement.domain.model.value_object import MeasureType
+from measurement.domain.model.value_object import MeasureType, SensorType, Unit
 from shared_kernel.presentation.response import BaseResponse
 import enum
 
@@ -19,8 +19,33 @@ class MeasurementSchema(BaseModel):
         orm_mode = True
         from_attributes=True
         json_encoders = {
-            datetime: lambda v: v.isoformat()  # Convierte a ISO 8601
+            datetime: lambda v: v.isoformat()
         }
+
+
+class UnitResponse(BaseResponse):
+    result:  List[Unit]
+
+
+class MeasurementSpecSchema(BaseModel):
+    measure_type: MeasureType
+    unit: Unit
+
+
+class SensorSchema(BaseModel):
+    id: int
+    brand: str
+    reference: str
+    sensor_type: SensorType
+    measurement_spec: List[MeasurementSpecSchema]
+
+
+class SensorsResponse(BaseResponse):
+    result: List[SensorSchema]
+
+
+class SensorResponse(BaseResponse):
+    result: Optional[SensorSchema]
 
 
 class MeasurementResponse(BaseResponse):

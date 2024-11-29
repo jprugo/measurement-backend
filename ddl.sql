@@ -51,13 +51,42 @@ CREATE TABLE IF NOT EXISTS step_definitions (
     UNIQUE (id, position)
 );
 
-INSERT INTO configurations
-(name, value, treatment_as)
-VALUES('DEVICE_IP', 'https://eb53b229-f0e4-42da-9957-a7df9990fe9c.mock.pstmn.io', 'STRING');
-VALUES('isolationVoltage', '500', 'STRING');
+CREATE TABLE IF NOT EXISTS sensors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    brand TEXT NOT NULL,
+    reference TEXT NOT NULL,
+    sensor_type TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS measurement_specs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    unit TEXT NOT NULL,
+    measure_type TEXT NOT NULL,
+    sensor_id INTEGER NOT NULL,
+    FOREIGN KEY (sensor_id) REFERENCES sensors(id) ON DELETE CASCADE
+);
+
+
+INSERT INTO configurations (name, value, treatment_as)
+VALUES
+('DEVICE_IP', 'https://eb53b229-f0e4-42da-9957-a7df9990fe9c.mock.pstmn.io', 'STRING'),
+('isolationVoltage', '500', 'STRING'),
+('soundPath', 'for_emit_sound', 'STRING');
 
 INSERT INTO step_definitions (position,duration,period,lead, sensor_type)
 values 
 ('FIRST',1,25,1,'RES'),
 ('SECOND',1,25,1,'ISO'),
 ('THIRD',1,25,1,'WELL');
+
+
+INSERT INTO sensors (brand, reference, sensor_type)
+VALUES
+    ('BrandA', 'Ref001', 'ISO'),
+    ('BrandB', 'Ref002', 'RES'),
+    ('BrandC', 'Ref003', 'WELL');
+
+INSERT INTO measurement_specs (unit, measure_type, sensor_id)
+VALUES
+    ('μΩ', 'RESISTANCE', 1),
+    ('°C', 'TEMPERATURE', 1);

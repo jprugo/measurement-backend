@@ -17,6 +17,13 @@ class Entity():
         return hash(self.id)
 
 
+class Aggregate(Entity):
+    """
+    An entry point of aggregate.
+    """
+    pass
+
+
 class AggregateRoot(Entity):
     """
     An entry point of aggregate.

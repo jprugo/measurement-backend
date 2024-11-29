@@ -1,8 +1,9 @@
 
 from typing import List
-from measurement.domain.model.value_object import SensorType, DeviceMeasure
+from measurement.domain.model.value_object import SensorType
 from measurement.infra.api.device_api_service import DeviceApiService
 from shared_kernel.infra.database.repository import RDBRepository
+from measurement.infra.api.response import DeviceMeasure
 
 class DeviceMeasureRepository(RDBRepository):
 

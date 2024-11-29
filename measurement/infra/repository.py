@@ -1,7 +1,8 @@
-from sqlalchemy.orm import Session, Query
+from typing import List
+from sqlalchemy.orm import Session, Query, joinedload
 
 from datetime import datetime
-from measurement.domain.model.aggregate import Measure, MeasureType
+from measurement.domain.model.aggregate import Measure, MeasureType, Sensor, MeasurementSpec
 
 from shared_kernel.infra.database.repository import RDBRepository
 
@@ -74,21 +75,58 @@ class MeasurementRepository(RDBRepository):
         session.commit()
 
 
-    @staticmethod
+    @staticmethod   
     def delete(session: Session, instance: Measure):
         session.delete(instance)
 
-
-    @staticmethod
-    def get_by_id(session: Session, entity_class: type, entity_id: int):
-        return session.query(entity_class).get(entity_id)
-    
 
     @staticmethod
     def get_all(session: Session, entity_class: type):
         return session.query(entity_class).all()
 
 
+class SensorRepository(RDBRepository):
+
     @staticmethod
-    def get_by_id(session: Session, entity_class: type, entity_id: int):
-        return session.query(entity_class).get(entity_id)
+    def find_sensor_by_measure_type(session: Session, measure_type: MeasureType) -> Sensor:
+        query = session.query(Sensor).options(
+            joinedload(Sensor.measurement_specs)
+        ).filter(
+            Sensor.measurement_specs.any(MeasurementSpec.measure_type == measure_type.value)
+        )
+        return query.first()
+
+    @staticmethod
+    def find_sensor_by_measure_types(session: Session, measure_types: List[MeasureType]) -> Sensor:
+        query = session.query(Sensor).options(
+            joinedload(Sensor.measurement_specs)
+        ).filter(
+            Sensor.measurement_specs.any(MeasurementSpec.measure_type in measure_types)
+        )
+        return query.first()
+        
+    @staticmethod
+    def get_all(session: Session) -> List[Sensor]:
+        query = session.query(Sensor).options(
+            joinedload(Sensor.measurement_specs)
+        )
+        return query.all()
+
+    @staticmethod
+    def add(session: Session, instance: Sensor):
+        session.add(instance)
+        return instance
+    
+    @staticmethod   
+    def delete(session: Session, instance: Sensor):
+        session.delete(instance)
+
+    @staticmethod
+    def commit(session: Session):
+        session.commit()
+
+    @staticmethod
+    def get_by_id(session: Session, entity_id: int):
+        return session.query(Sensor).options(
+            joinedload(Sensor.measurement_specs)
+        ).get(entity_id)

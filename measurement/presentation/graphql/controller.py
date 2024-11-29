@@ -7,6 +7,7 @@ from measurement.application.use_case import (
 )
 from measurement.presentation.graphql.schema import MeasurementInput, MeasurementType
 
+
 class BaseMutation:
     def __init__(self, measurement_command: CreateMeasurementCommand, measurement_query: MeasurementQueryUseCase):
         self.measurement_command = measurement_command

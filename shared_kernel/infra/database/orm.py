@@ -1,16 +1,22 @@
-from sqlalchemy import Boolean, Column, DateTime, Text, Integer, Float, MetaData, String, Table, UniqueConstraint
-from sqlalchemy.orm import registry, composite
+from sqlalchemy import (
+    Table, Column, MetaData,
+    DateTime, Text, Integer, Float, String, Boolean,
+    UniqueConstraint, ForeignKey
+)
+from sqlalchemy.orm import registry, composite, relationship
 
 from alarming.domain.model.value_object import AlarmType
 from configuration.domain.model.value_object import TreatmentAs
 from alarming.domain.model.aggregate import Alarm, AlarmDefinition
-from measurement.domain.model.aggregate import Measure
-from measurement.domain.model.value_object import SensorType, MeasureType
+from measurement.domain.model.aggregate import Measure, Sensor, MeasurementSpec
+from measurement.domain.model.value_object import SensorType, MeasureType, Unit
 from configuration.domain.model.aggregate import Configuration
 from worker.domain.model.aggregate import StepDefinition
 
 metadata = MetaData()
 mapper_registry = registry()
+
+# Tablas
 
 measures_table = Table(
     "measures",
@@ -70,11 +76,31 @@ step_definition_table = Table(
     Column("updated_at", DateTime, nullable=True),
 )
 
+sensor_table = Table(
+    "sensors",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("brand", String, nullable=False),
+    Column("reference", String, nullable=False),
+    Column("sensor_type", String, nullable=False),
+)
+
+measurement_specs_table = Table(
+    "measurement_specs",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("unit", String, nullable=False),
+    Column("measure_type", String, nullable=False),
+    Column("sensor_id", Integer, ForeignKey("sensors.id"), nullable=False)
+)
+
+# Inicialización de mapeos
+
 def init_orm_mappers():
     """
     Initialize ORM mappings.
     """
-
+    
     mapper_registry.map_imperatively(
         Measure,
         measures_table,
@@ -114,5 +140,31 @@ def init_orm_mappers():
         step_definition_table,
         properties={
             "sensor_type_value": composite(SensorType.from_value, step_definition_table.c.sensor_type),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        Sensor,
+        sensor_table,
+        properties={
+            "sensor_type_value": composite(SensorType.from_value, sensor_table.c.sensor_type),
+            "measurement_specs": relationship(
+                MeasurementSpec,
+                back_populates="sensor",
+                cascade="all, delete-orphan"
+            )
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        MeasurementSpec,
+        measurement_specs_table,
+        properties={
+            "measure_type_value": composite(MeasureType.from_value, measurement_specs_table.c.measure_type),
+            "units_type_value": composite(Unit.from_value, measurement_specs_table.c.unit),
+            "sensor": relationship(
+                Sensor,
+                back_populates="measurement_specs"
+            ),
         }
     )

@@ -4,7 +4,8 @@ import time
 
 from measurement.domain.model.value_object import MeasureType
 from measurement.infra.api.device_api_service import DeviceApiService
-from measurement.domain.model.value_object import DeviceMeasure, SensorType
+from measurement.infra.api.response import DeviceMeasure
+from measurement.domain.model.value_object import SensorType
 from measurement.application.use_case import CreateMeasurementCommand, DeviceMeasurementQueryUseCase, CreateMeasurementRequest
 
 from worker.application.step_definition_use_case import StepDefinitionQueryUseCase
