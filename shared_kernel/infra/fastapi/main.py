@@ -6,7 +6,6 @@ from configuration.presentation import rest as configuration_api
 from alarming.presentation import rest as alarming_api
 from worker.presentation import rest as worker_api
 from option.presentation import rest as option_api
-from drives.presentation import rest as drives_api
 
 from shared_kernel.infra.container import AppContainer
 from shared_kernel.infra.database.orm import init_orm_mappers
@@ -38,7 +37,6 @@ app.include_router(configuration_api.router)
 app.include_router(alarming_api.router)
 app.include_router(worker_api.router)
 app.include_router(option_api.router)
-app.include_router(drives_api.router)
 
 init_orm_mappers()
 

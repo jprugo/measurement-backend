@@ -4,15 +4,15 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 
 from measurement.domain.model.services import CreateMeasurementRequest, CreateSensorRequest
-from measurement.domain.model.value_object import MeasureType
+from measurement.domain.model.value_object import MeasureType, SensorType
 from measurement.domain.model.aggregate import Measure
 
 from measurement.presentation.response import  (
     MeasurementResponse, MeasurementSchema,
     LastMeasurementResponse, LastMeasurementSchema,
-    SensorResponse, SensorSchema, MeasurementSpecSchema, SensorsResponse,
-    UnitResponse,
-    get_last_measurement_id
+    SensorResponse, SensorSchema, MeasurementSpecSchema, 
+    SensorTypeResponse, SensorsResponse, MeasureTypeResponse,
+    UnitResponse, UnitSchema, get_last_measurement_id
 )
 
 from measurement.application.use_case import (
@@ -85,9 +85,46 @@ def post_measurement(
 def get_units(
     measure_type: MeasureType,
 ) -> UnitResponse:
+    
     return UnitResponse(
         detail="ok",
-        result=MeasureType.get_units(measure_type)
+        result=[
+            UnitSchema(
+                name=u.name,
+                value=u
+            ) for u in MeasureType.get_units(measure_type)      
+        ]
+    )
+
+
+@router.get("/sensorTypes")
+@inject
+def get_sensor_types(
+) -> SensorTypeResponse:
+    return SensorTypeResponse(
+        detail="ok",
+        result=list(SensorType)
+    )
+
+
+@router.get("/measureTypesBySensor")
+@inject
+def get_measure_types(
+    sensor_type: SensorType
+) -> MeasureTypeResponse:
+    return MeasureTypeResponse(
+        detail="ok",
+        result=SensorType.get_measure_types(sensor_type)
+    )
+
+
+@router.get("/measureTypes")
+@inject
+def get_measure_types(
+) -> MeasureTypeResponse:
+    return MeasureTypeResponse(
+        detail="ok",
+        result=list(MeasureType)
     )
 
 
