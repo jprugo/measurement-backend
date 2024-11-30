@@ -23,8 +23,21 @@ class MeasurementSchema(BaseModel):
         }
 
 
+class SensorTypeResponse(BaseResponse):
+    result:  List[SensorType]
+
+
+class MeasureTypeResponse(BaseResponse):
+    result:  List[MeasureType]
+
+
+class UnitSchema(BaseModel):
+    name: str
+    value: str
+
+
 class UnitResponse(BaseResponse):
-    result:  List[Unit]
+    result:  List[UnitSchema]
 
 
 class MeasurementSpecSchema(BaseModel):
