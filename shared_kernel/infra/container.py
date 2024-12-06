@@ -3,7 +3,7 @@ from dependency_injector import containers, providers
 from alarming.infra.container import AlarmContainer
 from configuration.infra.container import ConfigurationContainer
 from measurement.infra.container import MeasurementContainer
-from worker.infra.container import StepDefinitionContainer
+from worker.infra.container import WorkerContainer
 from option.infra.container import OptionContainer
 
 
@@ -21,5 +21,5 @@ class AppContainer(containers.DeclarativeContainer):
     alarm = providers.Container(AlarmContainer)
     configuration = providers.Container(ConfigurationContainer)
     measurement = providers.Container(MeasurementContainer)
-    step_definition = providers.Container(StepDefinitionContainer)
+    worker = providers.Container(WorkerContainer)
     option = providers.Container(OptionContainer)
