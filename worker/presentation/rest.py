@@ -85,6 +85,11 @@ async def start(
 
         background_task = asyncio.create_task(worker_service.handle(event_manager))
         return {"status": "Task started"}
+    elif worker_service.paused:
+        worker_service.handle_resume()
+        background_task = asyncio.create_task(worker_service.handle(event_manager))
+        return {"status": "Task resumed"}
+
     return {"status": "Task already running"}
 
 @router.get("/stop")
@@ -105,16 +110,5 @@ async def pause():
     if worker_service:
         worker_service.handle_pause()
         return {"status": "Task paused"}
-    else:
-        return {"status": "Task not running yet"}
-        
-@router.get("/resume")
-@inject
-async def resume():
-    global background_task, worker_service, event_manager
-    if worker_service:
-        worker_service.handle_resume()
-        background_task = asyncio.create_task(worker_service.handle(event_manager))
-        return {"status": "Task resumed"}
     else:
         return {"status": "Task not running yet"}
