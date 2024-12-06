@@ -17,11 +17,12 @@ from worker.infra.repository import StepDefinitionRepository
 from worker.application.step_definition_use_case import StepDefinitionQueryUseCase, UpdateStepDefinitionCommand, CreateStepDefinitionCommand, DeleteStepDefinitionCommand
 from worker.domain.model.step_definition_service import StepDefinitionService
 from worker.domain.model.worker_service import WorkerService
+from worker.application.services import WorkerFlowService
 
 from shared_kernel.infra.database.connection import get_db_session
 
 
-class StepDefinitionContainer(containers.DeclarativeContainer):
+class WorkerContainer(containers.DeclarativeContainer):
 
     # Configuration
     config_repo = providers.Factory(ConfigurationRepository)
@@ -125,5 +126,3 @@ class StepDefinitionContainer(containers.DeclarativeContainer):
         alarm_command= alarm_command,
         device_api_service=api_service
     )
-
-   
