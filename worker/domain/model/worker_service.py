@@ -4,7 +4,7 @@ from measurement.infra.api.device_api_service import DeviceApiService
 from measurement.infra.api.response import DeviceMeasure
 from measurement.application.use_case import CreateMeasurementCommand, DeviceMeasurementQueryUseCase, CreateMeasurementRequest
 
-from worker.application.step_definition_use_case import StepDefinitionQueryUseCase
+from worker.application.step_definition_use_case import CreateEventCommand, StepDefinitionQueryUseCase, CreateEventCommandRequest
 from worker.domain.model.aggregate import StepDefinition
 from worker.domain.model.value_object import PositionType
 
@@ -32,7 +32,8 @@ class WorkerService:
         device_api_service: DeviceApiService, 
         # ALARM
         alarm_def_query: AlarmDefinitionQueryUseCase,
-        alarm_command: CreateAlarmCommand
+        alarm_command: CreateAlarmCommand,
+        event_command: CreateEventCommand
     ):
         self.step_definition_query = step_definition_query
         # MEASUREMENT
@@ -45,6 +46,8 @@ class WorkerService:
         # ALARM
         self.alarm_query = alarm_def_query
         self.alarm_command = alarm_command
+        # ALARM
+        self.event_command = event_command
 
     def get_step_definition_from_position(self, position: PositionType):
         data = self.step_definition_query.find_by_position(position=position)
@@ -54,7 +57,14 @@ class WorkerService:
 
     def get_measure(self, step: StepDefinition) -> List[DeviceMeasure]:
         logger.logger.info(f"Getting {step.sensor_type} measure from device")
-        return self.measurement_query.get_measures(step.sensor_type)
+        try:
+            return self.measurement_query.get_measures(step.sensor_type)
+        except Exception as e:
+            self._register_event(
+                "Alerta comunicación",
+                "Ocurrió un error de comunicación con el dispositivo"
+            )
+            logger.logger.exception(e)
 
     def stop_measure(self) -> None:
         logger.logger.info(f"Sending stop message...")
@@ -106,6 +116,19 @@ class WorkerService:
         )
 
     def _trigger_alarm(self, alarm_definition: AlarmDefinition, measure_value: float):
+        self._register_event(
+            "Alerta medición",
+            f"Se disparó alarma {alarm_definition.alarm_type.value} durante la medición de {alarm_definition.measure_type.value}"
+        )
         self._reproduce(sound_path= alarm_definition.sound_path)
         self._save_alarm(alarm_definition=alarm_definition, measure_value=measure_value)
+
+    def _register_event(self, title, description):
+        self.event_command.execute(
+            CreateEventCommandRequest(
+                title=title,
+                description=description
+            )
+        )
+
         
