@@ -4,6 +4,16 @@ from dataclasses import dataclass
 from measurement.domain.model.value_object import SensorType
 from worker.domain.model.value_object import PositionType
 
+
+dataclass(eq=False)
+class Event():
+    title: str
+    description: str
+
+    def __init__(self, title: str, description: str):
+         self.title = title
+         self.description = description
+
 dataclass(eq=False)
 class StepDefinition(AggregateRoot):
     id: int

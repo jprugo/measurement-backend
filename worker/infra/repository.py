@@ -1,9 +1,21 @@
+from queue import Queue
 from shared_kernel.infra.database.repository import RDBRepository
 
 from sqlalchemy.orm import Session
 
-from worker.domain.model.aggregate import StepDefinition
+from worker.domain.model.aggregate import Event, StepDefinition
 from worker.domain.model.value_object import PositionType
+
+class EventRepository:
+    
+    def __init__(self):
+        self.queue = Queue(1)
+
+    def get(self):
+        return self.queue.get()
+    
+    def add(self, instance: Event):
+        self.queue.put(instance)
 
 
 class StepDefinitionRepository(RDBRepository):

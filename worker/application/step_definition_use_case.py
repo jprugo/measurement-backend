@@ -1,14 +1,15 @@
 from typing import Callable, ContextManager, List
 
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from worker.domain.model.aggregate import StepDefinition
+from worker.domain.model.aggregate import Event, StepDefinition
 from worker.domain.model.value_object import PositionType
 from worker.domain.model.step_definition_service import (
     StepDefinitionService,
     CreateStepDefinitionRequest, UpdateStepDefinitionRequest, GetStepDefinitionRequest
 )
-from worker.infra.repository import StepDefinitionRepository
+from worker.infra.repository import StepDefinitionRepository, EventRepository
 
 
 class StepDefinitionQueryUseCase:
@@ -61,3 +62,29 @@ class DeleteStepDefinitionCommand:
         with self.db_session() as session:
             self.service.delete_step_definition(request, session)
             session.commit()
+
+
+class EventQueryUseCase:
+    def __init__(self, repo: EventRepository):
+        self.repo = repo
+
+    def get(self) -> Event:
+       return self.repo.get()
+    
+
+class CreateEventCommandRequest(BaseModel):
+    title: str
+    description: str
+
+
+class CreateEventCommand:
+    def __init__(self, repo: EventRepository):
+        self.repo = repo
+
+    def execute(self, request: CreateEventCommandRequest) -> Event:
+        self.repo.add(
+            Event(
+                title=request.title,
+                description=request.description,
+            )
+        )

@@ -11,7 +11,8 @@ from worker.application.step_definition_use_case import (
     UpdateStepDefinitionRequest,
     CreateStepDefinitionCommand,
     CreateStepDefinitionRequest,
-    GetStepDefinitionRequest
+    GetStepDefinitionRequest,
+    EventQueryUseCase
 )
 from worker.domain.model.aggregate import StepDefinition
 from worker.domain.model.value_object import PositionType
@@ -19,6 +20,7 @@ from worker.domain.model.worker_service import WorkerService
 from worker.application.services import WorkerFlowService
 
 from shared_kernel.infra.container import AppContainer
+from fastapi import WebSocket
 
 router = APIRouter(prefix="/worker", tags=['worker'])
 
@@ -112,3 +114,10 @@ async def pause():
         return {"status": "Task paused"}
     else:
         return {"status": "Task not running yet"}
+
+@router.get("/ws")
+@inject
+def websocket_endpoint(query: EventQueryUseCase = Depends(Provide[AppContainer.worker.event_query]),):
+    response = query.get()
+    if response:
+        return response.description
