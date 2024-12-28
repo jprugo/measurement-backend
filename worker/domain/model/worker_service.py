@@ -116,10 +116,10 @@ class WorkerService:
         )
 
     def _trigger_alarm(self, alarm_definition: AlarmDefinition, measure_value: float):
-        self._register_event(
-            "Alerta medición",
-            f"Se disparó alarma {alarm_definition.alarm_type.value} durante la medición de {alarm_definition.measure_type.value}"
-        )
+        #self._register_event(
+        #    "Alerta medición",
+        #    f"Se disparó alarma {alarm_definition.alarm_type.value} durante la medición de {alarm_definition.measure_type.value}"
+        #)
         self._reproduce(sound_path= alarm_definition.sound_path)
         self._save_alarm(alarm_definition=alarm_definition, measure_value=measure_value)
 
@@ -130,5 +130,4 @@ class WorkerService:
                 description=description
             )
         )
-
         
