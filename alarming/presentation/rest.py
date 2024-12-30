@@ -7,13 +7,17 @@ from alarming.presentation.response import (
     AlarmResponse, AlarmDefinitionResponse,
     AlarmSchema, AlarmDefinitionSchema
 )
-from alarming.application.use_case import (
-    AlarmDefinitionQueryUseCase, AlarmQueryUseCase,
+from alarming.application.use_cases.alarm_definition_use_cases import (
+    AlarmDefinitionQueryUseCase,
     # Command
-    CreateAlarmCommand, CreateAlarmDefinitionCommand, 
+    CreateAlarmDefinitionCommand, 
     UpdateAlarmDefinitionCommand, DeleteAlarmDefinitionCommand, GetAlarmDefinitionRequest,
     # Request
-    RegisterAlarmDefinitionRequest, RegisterAlarmRequest, UpdateAlarmDefinitionRequest
+    RegisterAlarmDefinitionRequest, UpdateAlarmDefinitionRequest
+)
+
+from alarming.application.use_cases.alarm_use_cases import (
+    AlarmQueryUseCase, CreateAlarmCommand, RegisterAlarmRequest
 )
 
 from alarming.domain.model.aggregate import Alarm, AlarmDefinition

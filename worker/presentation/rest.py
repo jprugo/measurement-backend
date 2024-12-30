@@ -1,11 +1,10 @@
-from typing import List
+from typing import List, Optional
 import asyncio
-
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
-from shared_kernel.infra.event_manager import EventManager
+from worker.application.use_cases.worker_flow_status_use_case import CreateWorkerFlowStatusRequest, WorkerFlowStatusCreateCommand, WorkerFlowStatusQueryUseCase
 from worker.presentation.response import StepDefinitionResponse, StepDefinitionSchema
-from worker.application.step_definition_use_case import (
+from worker.application.use_cases.step_definition_use_case import (
     StepDefinitionQueryUseCase,
     UpdateStepDefinitionCommand,
     UpdateStepDefinitionRequest,
@@ -16,11 +15,11 @@ from worker.application.step_definition_use_case import (
 )
 from worker.domain.model.aggregate import StepDefinition
 from worker.domain.model.value_object import PositionType
-from worker.domain.model.worker_service import WorkerService
-from worker.application.services import WorkerFlowService
+from worker.domain.model.services.worker_service import WorkerService
+from worker.application.services.worker_flow_service import WorkerFlowService
 
 from shared_kernel.infra.container import AppContainer
-from fastapi import WebSocket
+
 
 router = APIRouter(prefix="/worker", tags=['worker'])
 
@@ -67,53 +66,95 @@ def post_step_definition(
 #                           FLOW                              #
 ###############################################################
 worker_service = None
-background_task = None
-event_manager = EventManager()
+worker_task: Optional[asyncio.Task] = None
+
 
 @router.get("/start")
 @inject
 async def start(
     service: WorkerService = Depends(Provide[AppContainer.worker.worker_service]),
+    worker_flow_status_query: WorkerFlowStatusQueryUseCase = Depends(Provide[AppContainer.worker.worker_flow_status_query]),
+    worker_flow_status_command: WorkerFlowStatusCreateCommand = Depends(Provide[AppContainer.worker.worker_flow_status_command]),
 ):
-    global worker_service, background_task, event_manager
+    global worker_service, worker_task
+
     if worker_service is None:
         worker_service = WorkerFlowService(
             worker_service=service,
-            position=PositionType.FIRST,
-            times_executed=1
+            worker_flow_status_query=worker_flow_status_query,
+            worker_flow_status_command=worker_flow_status_command
         )
-        event_manager = EventManager()
-        event_manager.start()
 
-        background_task = asyncio.create_task(worker_service.handle(event_manager))
+        async def run_worker():
+            while True:
+                await worker_service.handle()
+                
+        worker_task = asyncio.create_task(run_worker())
+
         return {"status": "Task started"}
-    elif worker_service.paused:
-        worker_service.handle_resume()
-        background_task = asyncio.create_task(worker_service.handle(event_manager))
+    else:
         return {"status": "Task resumed"}
 
-    return {"status": "Task already running"}
 
 @router.get("/stop")
 @inject
-async def stop():
-    global worker_service
+async def stop(
+    service: WorkerService = Depends(Provide[AppContainer.worker.worker_service]),
+    worker_flow_status_command: WorkerFlowStatusCreateCommand = Depends(Provide[AppContainer.worker.worker_flow_status_command]),
+):
+    global worker_service, worker_task
+
     if worker_service:
-        background_task.cancel()
+        # Cambiar el estado del worker a "detenido"
+        worker_flow_status_command.execute(
+            CreateWorkerFlowStatusRequest(
+                position=PositionType.FIRST,
+                times_executed=1,
+                times_to_be_executed=-1
+            )
+        )
+        service.stop_measure()
+
+        # Cancelar la tarea en segundo plano
+        if worker_task:
+            worker_task.cancel()
+            try:
+                await worker_task
+            except asyncio.CancelledError:
+                pass
+
         worker_service = None
+        worker_task = None
+
         return {"status": "Task stopped"}
     else:
         return {"status": "Task not running yet"}
+    
 
 @router.get("/pause")
 @inject
-async def pause():
-    global worker_service
+async def stop(
+    service: WorkerService = Depends(Provide[AppContainer.worker.worker_service]),
+):
+    global worker_service, worker_task
+
     if worker_service:
-        worker_service.handle_pause()
+        service.stop_measure()
+
+        if worker_task:
+            worker_task.cancel()
+            try:
+                await worker_task
+            except asyncio.CancelledError:
+                pass
+
+        worker_service = None
+        worker_task = None
+
         return {"status": "Task paused"}
     else:
         return {"status": "Task not running yet"}
+
 
 @router.get("/ws")
 @inject
@@ -121,3 +162,4 @@ def websocket_endpoint(query: EventQueryUseCase = Depends(Provide[AppContainer.w
     response = query.get()
     if response:
         return response.description
+

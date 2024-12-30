@@ -3,7 +3,10 @@ from typing import List, Optional
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 
-from measurement.domain.model.services import CreateMeasurementRequest, CreateSensorRequest
+from measurement.domain.model.services.measurement_service import CreateMeasurementRequest
+from measurement.domain.model.services.sensor_service import CreateSensorRequest
+
+
 from measurement.domain.model.value_object import MeasureType, SensorType
 from measurement.domain.model.aggregate import Measure
 
@@ -15,11 +18,13 @@ from measurement.presentation.response import  (
     UnitResponse, UnitSchema, get_last_measurement_id
 )
 
-from measurement.application.use_case import (
-    CreateSensorCommand, GetSensorByIdRequest, MeasurementQueryUseCase, GetMeasurementRequest,
+from measurement.application.use_cases.measurement_use_cases import (
+    MeasurementQueryUseCase, GetMeasurementRequest,
     CreateMeasurementCommand,
-    SensorQueryUseCase, GetSensorRequest,
-    DeleteSensorCommand
+)
+
+from measurement.application.use_cases.sensor_use_cases import (
+    CreateSensorCommand, GetSensorByIdRequest, SensorQueryUseCase, GetSensorRequest, DeleteSensorCommand
 )
 
 from shared_kernel.infra.container import AppContainer

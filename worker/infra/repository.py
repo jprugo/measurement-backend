@@ -3,13 +3,13 @@ from shared_kernel.infra.database.repository import RDBRepository
 
 from sqlalchemy.orm import Session
 
-from worker.domain.model.aggregate import Event, StepDefinition
+from worker.domain.model.aggregate import Event, StepDefinition, WorkerFlowStatus
 from worker.domain.model.value_object import PositionType
 
 class EventRepository:
     
     def __init__(self):
-        self.queue = Queue(1)
+        self.queue = Queue(5)
 
     def get(self):
         return self.queue.get()
@@ -59,3 +59,20 @@ class StepDefinitionRepository(RDBRepository):
     @staticmethod
     def get_by_id(session: Session, entity_id: int):
         return session.query(StepDefinition).get(entity_id)
+    
+
+class WorkerFlowStatusRepository(RDBRepository):
+    
+    @staticmethod
+    def find_first(session: Session):
+        return session.query(WorkerFlowStatus).first()
+
+
+    @staticmethod
+    def add(session: Session, instance: WorkerFlowStatus):
+        session.add(instance)
+        return instance
+    
+    @staticmethod
+    def delete(session: Session, instance: WorkerFlowStatus):
+        session.delete(instance)

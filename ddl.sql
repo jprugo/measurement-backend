@@ -67,6 +67,14 @@ CREATE TABLE IF NOT EXISTS measurement_specs (
 );
 
 
+CREATE TABLE IF NOT EXISTS worker_flow_status (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    times_executed INTEGER NOT NULL,
+    times_to_be_executed INTEGER NOT NULL,
+    position TEXT NOT NULL
+);
+
+
 INSERT INTO configurations (name, value, treatment_as)
 VALUES
 ('DEVICE_IP', 'https://eb53b229-f0e4-42da-9957-a7df9990fe9c.mock.pstmn.io', 'STRING'),

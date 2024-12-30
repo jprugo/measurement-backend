@@ -1,13 +1,18 @@
 from dependency_injector import containers, providers
 
 from measurement.infra.repository import MeasurementRepository, SensorRepository
-from measurement.application.use_case import (
+from measurement.application.use_cases.measurement_use_cases import (
     MeasurementQueryUseCase,
     CreateMeasurementCommand,
-    SensorQueryUseCase,
-    DeleteSensorCommand, CreateSensorCommand
 )
-from measurement.domain.model.services import MeasurementService, SensorService
+
+from measurement.application.use_cases.sensor_use_cases import (
+    SensorQueryUseCase, DeleteSensorCommand, CreateSensorCommand
+)
+
+from measurement.domain.model.services.measurement_service import MeasurementService
+from measurement.domain.model.services.sensor_service import SensorService
+
 from shared_kernel.infra.database.connection import get_db_session
 
 

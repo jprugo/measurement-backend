@@ -1,28 +1,37 @@
 from dependency_injector import containers, providers
 
+# Configuration
 from configuration.infra.repository import ConfigurationRepository
 from configuration.application.use_case import ConfigurationQueryUseCase
 
-from measurement.application.use_case import DeviceMeasurementQueryUseCase, CreateMeasurementCommand
+# Measurement
+from measurement.application.use_cases.measurement_use_cases import DeviceMeasurementQueryUseCase, CreateMeasurementCommand
 from measurement.infra.api.device_api_service import DeviceApiService
 from measurement.infra.api.device_repository import DeviceMeasureRepository
 from measurement.infra.repository import MeasurementRepository
-from measurement.domain.model.services import MeasurementService
+from measurement.domain.model.services.measurement_service import MeasurementService
 
-from alarming.application.use_case import AlarmDefinitionQueryUseCase, CreateAlarmCommand
+# Alarming
+from alarming.application.use_cases.alarm_definition_use_cases import AlarmDefinitionQueryUseCase
+from alarming.application.use_cases.alarm_use_cases import CreateAlarmCommand
 from alarming.domain.model.services import AlarmDefinitionService, AlarmService
 from alarming.infra.repository import AlarmDefinitionRepository, AlarmRepository
 
-from worker.infra.repository import StepDefinitionRepository, EventRepository
-from worker.application.step_definition_use_case import (
+# Worker
+from worker.application.use_cases.worker_flow_status_use_case import WorkerFlowStatusQueryUseCase, WorkerFlowStatusCreateCommand
+from worker.domain.model.services.worker_flow_status_service import WorkerFlowStatusService
+from worker.infra.repository import StepDefinitionRepository, EventRepository, WorkerFlowStatusRepository
+
+from worker.application.use_cases.step_definition_use_case import (
     StepDefinitionQueryUseCase,
     UpdateStepDefinitionCommand,
     CreateStepDefinitionCommand,
     DeleteStepDefinitionCommand,
     EventQueryUseCase, CreateEventCommand
 )
+
 from worker.domain.model.step_definition_service import StepDefinitionService
-from worker.domain.model.worker_service import WorkerService
+from worker.domain.model.services.worker_service import WorkerService
 
 from shared_kernel.infra.database.connection import get_db_session
 
@@ -134,4 +143,26 @@ class WorkerContainer(containers.DeclarativeContainer):
         alarm_command= alarm_command,
         event_command=event_command,
         device_api_service=api_service
+    )
+
+    # Worker Flow Status
+    worker_flow_status_repo = providers.Factory(
+        WorkerFlowStatusRepository,
+    )
+
+    worker_flow_status_query = providers.Factory(
+        WorkerFlowStatusQueryUseCase,
+        repo=worker_flow_status_repo,
+        db_session=get_db_session
+    )
+
+    worker_flow_status_service = providers.Factory(
+        WorkerFlowStatusService,
+        repo=worker_flow_status_repo
+    )
+
+    worker_flow_status_command = providers.Factory(
+        WorkerFlowStatusCreateCommand,
+        service=worker_flow_status_service,
+        db_session=get_db_session
     )

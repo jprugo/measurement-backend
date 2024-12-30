@@ -2,13 +2,14 @@ from typing import  List
 
 from measurement.infra.api.device_api_service import DeviceApiService
 from measurement.infra.api.response import DeviceMeasure
-from measurement.application.use_case import CreateMeasurementCommand, DeviceMeasurementQueryUseCase, CreateMeasurementRequest
+from measurement.application.use_cases.measurement_use_cases import CreateMeasurementCommand, DeviceMeasurementQueryUseCase, CreateMeasurementRequest
 
-from worker.application.step_definition_use_case import CreateEventCommand, StepDefinitionQueryUseCase, CreateEventCommandRequest
+from worker.application.use_cases.step_definition_use_case import CreateEventCommand, StepDefinitionQueryUseCase, CreateEventCommandRequest
 from worker.domain.model.aggregate import StepDefinition
 from worker.domain.model.value_object import PositionType
 
-from alarming.application.use_case import AlarmDefinitionQueryUseCase, CreateAlarmCommand
+from alarming.application.use_cases.alarm_definition_use_cases import AlarmDefinitionQueryUseCase
+from alarming.application.use_cases.alarm_use_cases import CreateAlarmCommand
 from alarming.domain.model.aggregate import AlarmDefinition
 from alarming.domain.model.value_object import AlarmTypeFactory
 from alarming.domain.model.services import RegisterAlarmRequest
@@ -49,7 +50,7 @@ class WorkerService:
         # ALARM
         self.event_command = event_command
 
-    def get_step_definition_from_position(self, position: PositionType):
+    def get_step_definition_from_position(self, position):
         data = self.step_definition_query.find_by_position(position=position)
         if not data:
             raise NotConfiguredPositionError('Data not found for the given position.')
@@ -61,8 +62,8 @@ class WorkerService:
             return self.measurement_query.get_measures(step.sensor_type)
         except Exception as e:
             self._register_event(
-                "Alerta comunicación",
-                "Ocurrió un error de comunicación con el dispositivo"
+                "Alerta comunicacion",
+                "Ocurrio un error de comunicacion con el dispositivo"
             )
             logger.logger.exception(e)
 
@@ -95,7 +96,6 @@ class WorkerService:
         next_index = (current_index + 1) % len(enum_members)
         return enum_members[next_index]
     
-
     def _reproduce(self, sound_path: str):
         try:
             logger.logger.info(f'Playing {sound_path}')
@@ -116,10 +116,10 @@ class WorkerService:
         )
 
     def _trigger_alarm(self, alarm_definition: AlarmDefinition, measure_value: float):
-        #self._register_event(
-        #    "Alerta medición",
-        #    f"Se disparó alarma {alarm_definition.alarm_type.value} durante la medición de {alarm_definition.measure_type.value}"
-        #)
+        self._register_event(
+            "Alerta medición",
+            f"Alarma disparada {alarm_definition.alarm_type} durante la medicion de {alarm_definition.measure_type}"
+        )
         self._reproduce(sound_path= alarm_definition.sound_path)
         self._save_alarm(alarm_definition=alarm_definition, measure_value=measure_value)
 
@@ -130,4 +130,3 @@ class WorkerService:
                 description=description
             )
         )
-        

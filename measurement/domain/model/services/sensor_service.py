@@ -1,34 +1,13 @@
-from typing import Optional, List
+from typing import List
 
 from sqlalchemy.orm import Session
 
-from measurement.domain.model.aggregate import Measure, Sensor, MeasurementSpec
+from measurement.domain.model.aggregate import  Sensor, MeasurementSpec
 from measurement.domain.model.value_object import MeasureType, Unit, SensorType
-from measurement.infra.repository import MeasurementRepository, SensorRepository
+from measurement.infra.repository import  SensorRepository
 from pydantic import BaseModel
 
 
-# Measures
-class CreateMeasurementRequest(BaseModel):
-    value: float
-    measure_type: MeasureType
-    detail: Optional[str] = None
-
-
-class MeasurementService:
-    def __init__(self, repo: MeasurementRepository):
-        self.repo = repo
-
-    def create_measure(self, session: Session, request: CreateMeasurementRequest) -> Measure:
-        measure = Measure.create(
-            value= request.value,
-            measure_type= request.measure_type,
-            detail= request.detail
-        ) 
-        self.repo.add(instance=measure, session=session)
-        return measure
-    
-# Sensor
 class CreateMeasurementSpecRequest(BaseModel):
     measure_type: MeasureType
     unit: Unit
