@@ -2,32 +2,15 @@ from typing import Callable, ContextManager, List
 
 from sqlalchemy.orm import Session
 
-from alarming.domain.model.aggregate import Alarm, AlarmDefinition
+from alarming.domain.model.aggregate import  AlarmDefinition
 from alarming.domain.model.services import (
-    AlarmDefinitionService, AlarmService,
+    AlarmDefinitionService,
     # Requests
-    RegisterAlarmDefinitionRequest, RegisterAlarmRequest,
+    RegisterAlarmDefinitionRequest,
     UpdateAlarmDefinitionRequest, GetAlarmDefinitionRequest,
 )
-from alarming.infra.repository import AlarmDefinitionRepository, AlarmRepository
+from alarming.infra.repository import AlarmDefinitionRepository
 from measurement.domain.model.value_object import MeasureType
-
-class AlarmQueryUseCase:
-    def __init__(self, repo: AlarmRepository, db_session: Callable[[], ContextManager[Session]]):
-        self.repo = repo
-        self.db_session = db_session
-
-    def get_alarms(self) -> List[Alarm]:
-        with self.db_session() as session:
-            alarms: List[Alarm] = list(
-                self.repo.get_all(session=session)
-            )
-            return alarms
-        
-    def get_last_n_alarms(self, n: int) -> List[Alarm]:
-        with self.db_session() as session:
-            alarms: List[Alarm] = session.query(Alarm).order_by(Alarm.created_at.desc()).limit(n).all()
-            return alarms
 
 
 class AlarmDefinitionQueryUseCase:
@@ -48,18 +31,6 @@ class AlarmDefinitionQueryUseCase:
                 self.repo.find_by_measure_type(session=session, measure_type= measure_type)
             )
             return alarms_def
-
-
-class CreateAlarmCommand:
-    def __init__(self, service: AlarmService, db_session: Callable[[], ContextManager[Session]]):
-        self.service = service
-        self.db_session = db_session
-
-    def execute(self, request: RegisterAlarmRequest) -> Alarm:
-        with self.db_session() as session:
-            alarm = self.service.create_alarm(request, session)
-            session.commit()
-            return alarm
 
 
 class CreateAlarmDefinitionCommand:

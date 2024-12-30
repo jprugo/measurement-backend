@@ -1,5 +1,5 @@
 from typing import List
-from measurement.application.use_case import (
+from measurement.application.use_cases.measurement_use_cases import (
     MeasurementQueryUseCase, 
     GetMeasurementRequest, 
     CreateMeasurementCommand, 

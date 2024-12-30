@@ -11,7 +11,7 @@ from alarming.domain.model.aggregate import Alarm, AlarmDefinition
 from measurement.domain.model.aggregate import Measure, Sensor, MeasurementSpec
 from measurement.domain.model.value_object import SensorType, MeasureType, Unit
 from configuration.domain.model.aggregate import Configuration
-from worker.domain.model.aggregate import StepDefinition
+from worker.domain.model.aggregate import StepDefinition, PositionType, WorkerFlowStatus
 
 metadata = MetaData()
 mapper_registry = registry()
@@ -94,6 +94,15 @@ measurement_specs_table = Table(
     Column("sensor_id", Integer, ForeignKey("sensors.id"), nullable=False)
 )
 
+worker_flow_status_table = Table(
+    "worker_flow_status",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("times_executed", Integer, nullable=False),
+    Column("times_to_be_executed", Integer, nullable=False),
+    Column("position", String, nullable=False),
+)
+
 # Inicialización de mapeos
 
 def init_orm_mappers():
@@ -140,6 +149,7 @@ def init_orm_mappers():
         step_definition_table,
         properties={
             "sensor_type_value": composite(SensorType.from_value, step_definition_table.c.sensor_type),
+            #"position_type_value": composite(PositionType.from_value, step_definition_table.c.position),
         }
     )
 
@@ -166,5 +176,13 @@ def init_orm_mappers():
                 Sensor,
                 back_populates="measurement_specs"
             ),
+        }
+    )
+
+    mapper_registry.map_imperatively(
+        WorkerFlowStatus,
+        worker_flow_status_table,
+        properties={
+            #"position_type_value": composite(PositionType.from_value, worker_flow_status_table.c.position),
         }
     )

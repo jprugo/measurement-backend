@@ -1,10 +1,14 @@
 from dependency_injector import containers, providers
 
-from alarming.application.use_case import (
-    AlarmDefinitionQueryUseCase, AlarmQueryUseCase,
+from alarming.application.use_cases.alarm_definition_use_cases import (
+    AlarmDefinitionQueryUseCase, 
     # Command
-    CreateAlarmDefinitionCommand, CreateAlarmCommand,
+    CreateAlarmDefinitionCommand, 
     UpdateAlarmDefinitionCommand, DeleteAlarmDefinitionCommand
+)
+
+from alarming.application.use_cases.alarm_use_cases import (
+    CreateAlarmCommand, AlarmQueryUseCase
 )
 
 from alarming.infra.repository import AlarmDefinitionRepository, AlarmRepository
