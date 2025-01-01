@@ -60,19 +60,34 @@ def get_measurements(
 @inject
 def get_last_measurements(
     measurement_query: MeasurementQueryUseCase = Depends(Provide[AppContainer.measurement.query]),
+    sensor_query: SensorQueryUseCase = Depends(Provide[AppContainer.measurement.sensor_query]),
 ) -> LastMeasurementResponse:
     measurements: List[Measure] = measurement_query.get_last_measures()
-    return LastMeasurementResponse(
-        detail="ok",
-        result=[
-            LastMeasurementSchema(
+    response_list = list()
+    for m in measurements:
+
+        sensor_response = sensor_query.get_sensor(
+            GetSensorRequest(
+                measure_type=m.measure_type
+            )
+        )
+        unit = None
+        if sensor_response:
+            filtered = filter(lambda s: s.measure_type == m.measure_type , sensor_response.measurement_specs)
+            unit = next(filtered).unit
+
+        response_list.append(LastMeasurementSchema(
                 id=get_last_measurement_id(measure_type=m.measure_type, detail=m.detail),
                 value=m.value,
                 created_at=m.created_at,
                 measure_type=m.measure_type,
-                detail=m.detail
-            ) for m in measurements
-        ]
+                detail=m.detail,
+                unit=unit
+            ))
+
+    return LastMeasurementResponse(
+        detail="ok",
+        result=response_list
     )
 
 

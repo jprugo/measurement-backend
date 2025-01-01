@@ -124,6 +124,7 @@ class LastMeasurementSchema(BaseModel):
     value: float
     created_at: datetime
     measure_type: MeasureType
+    unit:  Optional[Unit] =  None
     detail: Optional[str] = None
 
 
