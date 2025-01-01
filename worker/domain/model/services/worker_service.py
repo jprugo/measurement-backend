@@ -117,7 +117,7 @@ class WorkerService:
 
     def _trigger_alarm(self, alarm_definition: AlarmDefinition, measure_value: float):
         self._register_event(
-            "Alerta medición",
+            "Alerta Medicion",
             f"Alarma disparada {alarm_definition.alarm_type} durante la medicion de {alarm_definition.measure_type}"
         )
         self._reproduce(sound_path= alarm_definition.sound_path)

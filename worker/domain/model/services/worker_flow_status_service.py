@@ -6,10 +6,9 @@ from worker.domain.model.aggregate import WorkerFlowStatus
 from sqlalchemy.orm import Session
 
 @dataclass
-class CreateWorkerFlowStatusRequest:
+class UpdateWorkerFlowStatusRequest:
     position: PositionType
     times_executed: int
-    times_to_be_executed: int
 
 
 class WorkerFlowStatusService:
@@ -17,14 +16,22 @@ class WorkerFlowStatusService:
     def __init__(self, repo: WorkerFlowStatusRepository):
         self.repo = repo
     
-    def create_worker_flow_status(self, session: Session, request: CreateWorkerFlowStatusRequest) -> WorkerFlowStatus:
-        obj = WorkerFlowStatus.create(
-            times_executed=request.times_executed,
-            times_to_be_executed=request.times_to_be_executed,
-            position=request.position
-        ) 
-        self.repo.add(instance=obj, session=session)
-        return obj
+    def update_worker_flow_status(self, session: Session, request: UpdateWorkerFlowStatusRequest) -> WorkerFlowStatus:
+        instance = self.repo.find_first(session)
+        if not instance:
+            obj = WorkerFlowStatus.create(
+                times_executed=request.times_executed,
+                position=request.position
+            ) 
+            self.repo.add(instance=obj, session=session)
+            return obj
+        else:
+            instance.update(
+                times_executed=request.times_executed,
+                position=request.position
+            )
+
+        return instance
     
     def delete_worker_flow_status(self, session: Session):
         instance = self.repo.find_first(session)

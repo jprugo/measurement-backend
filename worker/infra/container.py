@@ -18,7 +18,7 @@ from alarming.domain.model.services import AlarmDefinitionService, AlarmService
 from alarming.infra.repository import AlarmDefinitionRepository, AlarmRepository
 
 # Worker
-from worker.application.use_cases.worker_flow_status_use_case import WorkerFlowStatusQueryUseCase, WorkerFlowStatusCreateCommand
+from worker.application.use_cases.worker_flow_status_use_case import WorkerFlowStatusQueryUseCase, WorkerFlowStatusUpdateCommand
 from worker.domain.model.services.worker_flow_status_service import WorkerFlowStatusService
 from worker.infra.repository import StepDefinitionRepository, EventRepository, WorkerFlowStatusRepository
 
@@ -162,7 +162,7 @@ class WorkerContainer(containers.DeclarativeContainer):
     )
 
     worker_flow_status_command = providers.Factory(
-        WorkerFlowStatusCreateCommand,
+        WorkerFlowStatusUpdateCommand,
         service=worker_flow_status_service,
         db_session=get_db_session
     )
