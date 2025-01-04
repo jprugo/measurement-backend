@@ -70,7 +70,6 @@ CREATE TABLE IF NOT EXISTS measurement_specs (
 CREATE TABLE IF NOT EXISTS worker_flow_status (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     times_executed INTEGER NOT NULL,
-    times_to_be_executed INTEGER NOT NULL,
     position TEXT NOT NULL
 );
 

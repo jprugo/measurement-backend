@@ -99,7 +99,6 @@ worker_flow_status_table = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("times_executed", Integer, nullable=False),
-    Column("times_to_be_executed", Integer, nullable=False),
     Column("position", String, nullable=False),
 )
 

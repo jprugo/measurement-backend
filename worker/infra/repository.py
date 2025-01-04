@@ -9,7 +9,7 @@ from worker.domain.model.value_object import PositionType
 class EventRepository:
     
     def __init__(self):
-        self.queue = Queue(5)
+        self.queue = Queue(0)
 
     def get(self):
         return self.queue.get()
@@ -66,7 +66,6 @@ class WorkerFlowStatusRepository(RDBRepository):
     @staticmethod
     def find_first(session: Session):
         return session.query(WorkerFlowStatus).first()
-
 
     @staticmethod
     def add(session: Session, instance: WorkerFlowStatus):

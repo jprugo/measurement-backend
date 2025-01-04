@@ -1,8 +1,9 @@
+import time
 from typing import List, Optional
 import asyncio
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
-from worker.application.use_cases.worker_flow_status_use_case import CreateWorkerFlowStatusRequest, WorkerFlowStatusCreateCommand, WorkerFlowStatusQueryUseCase
+from worker.application.use_cases.worker_flow_status_use_case import UpdateWorkerFlowStatusRequest, WorkerFlowStatusUpdateCommand, WorkerFlowStatusQueryUseCase
 from worker.presentation.response import StepDefinitionResponse, StepDefinitionSchema
 from worker.application.use_cases.step_definition_use_case import (
     StepDefinitionQueryUseCase,
@@ -74,7 +75,7 @@ worker_task: Optional[asyncio.Task] = None
 async def start(
     service: WorkerService = Depends(Provide[AppContainer.worker.worker_service]),
     worker_flow_status_query: WorkerFlowStatusQueryUseCase = Depends(Provide[AppContainer.worker.worker_flow_status_query]),
-    worker_flow_status_command: WorkerFlowStatusCreateCommand = Depends(Provide[AppContainer.worker.worker_flow_status_command]),
+    worker_flow_status_command: WorkerFlowStatusUpdateCommand = Depends(Provide[AppContainer.worker.worker_flow_status_command]),
 ):
     global worker_service, worker_task
 
@@ -88,6 +89,7 @@ async def start(
         async def run_worker():
             while True:
                 await worker_service.handle()
+                time.sleep(10)
                 
         worker_task = asyncio.create_task(run_worker())
 
@@ -100,17 +102,16 @@ async def start(
 @inject
 async def stop(
     service: WorkerService = Depends(Provide[AppContainer.worker.worker_service]),
-    worker_flow_status_command: WorkerFlowStatusCreateCommand = Depends(Provide[AppContainer.worker.worker_flow_status_command]),
+    worker_flow_status_command: WorkerFlowStatusUpdateCommand = Depends(Provide[AppContainer.worker.worker_flow_status_command]),
 ):
     global worker_service, worker_task
 
     if worker_service:
         # Cambiar el estado del worker a "detenido"
         worker_flow_status_command.execute(
-            CreateWorkerFlowStatusRequest(
+            UpdateWorkerFlowStatusRequest(
                 position=PositionType.FIRST,
-                times_executed=1,
-                times_to_be_executed=-1
+                times_executed=1
             )
         )
         service.stop_measure()

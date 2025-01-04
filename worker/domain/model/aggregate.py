@@ -19,22 +19,27 @@ dataclass(eq=False)
 class WorkerFlowStatus(AggregateRoot):
     id: int
     times_executed: int
-    times_to_be_executed: int
     position: PositionType
 
     @classmethod
     def create(
         cls, 
         times_executed: int,
-        times_to_be_executed: int,
         position: PositionType,
     ) -> WorkerFlowStatus:
         # Action
         return cls(
             times_executed=times_executed,
-            times_to_be_executed=times_to_be_executed,
             position=position,
         )
+    
+    def update(
+        self, 
+        times_executed: int,
+        position: PositionType,
+    ) -> WorkerFlowStatus:
+        self.times_executed = times_executed
+        self.position = position
 
 
 dataclass(eq=False)
