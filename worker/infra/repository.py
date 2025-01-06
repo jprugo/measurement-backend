@@ -12,7 +12,8 @@ class EventRepository:
         self.queue = Queue(0)
 
     def get(self):
-        return self.queue.get()
+        value = self.queue.get(timeout=5)
+        return value
     
     def add(self, instance: Event):
         self.queue.put(instance)
