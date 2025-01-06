@@ -26,35 +26,38 @@ class WorkerFlowService():
         
         # Step Definition Query
         data = self.worker_service.get_step_definition_from_position(position)
-        step = data[0]
-        measure_history: List[float] = []
-        
-        times_to_be_executed = int(self._compute_iteration_time(step))
-        times_executed = status.times_executed
-        logger.logger.info(f'Times executed = {times_executed}')
-        logger.logger.info(f'Times to be executed = {times_to_be_executed}')
+        if data:
+            step = data[0]
+            measure_history: List[float] = []
+            
+            times_to_be_executed = int(self._compute_iteration_time(step))
+            times_executed = status.times_executed
+            logger.logger.info(f'Times executed = {times_executed}')
+            logger.logger.info(f'Times to be executed = {times_to_be_executed}')
 
-        # Bucle principal de ejecución de medidas
-        while times_executed < times_to_be_executed:
-            measures = self.worker_service.get_measure(step)
-            logger.logger.info('Saving measure and verifying alarm level')
+            # Bucle principal de ejecución de medidas
+            while times_executed < times_to_be_executed:
+                measures = self.worker_service.get_measure(step)
+                logger.logger.info('Saving measure and verifying alarm level')
 
-            for measure in measures:
-                self.worker_service.register_measure(measure, measure_history)
-                self.worker_service.verify_alarm_level(measure, measure_history)
+                for measure in measures:
+                    self.worker_service.register_measure(measure, measure_history)
+                    self.worker_service.verify_alarm_level(measure, measure_history)
 
-            logger.logger.info('End measure and verifying alarm level')
+                logger.logger.info('End measure and verifying alarm level')
 
-            # Llamada al tiempo de espera entre iteraciones
-            await self._lead_period(step)
+                # Llamada al tiempo de espera entre iteraciones
+                await self._lead_period(step)
 
-            # Preparar para la siguiente iteración
-            self._prepare_next_iteration(position, times_executed)
-            # Aumentar el contador de ejecuciones
-            times_executed += 1  # Incrementar antes de la siguiente iteración
+                # Preparar para la siguiente iteración
+                self._prepare_next_iteration(position, times_executed)
+                # Aumentar el contador de ejecuciones
+                times_executed += 1  # Incrementar antes de la siguiente iteración
 
-        # Cuando se completa la ejecución de todas las iteraciones, avanzar al siguiente paso
-        await self._lead_final(step)
+            # Cuando se completa la ejecución de todas las iteraciones, avanzar al siguiente paso
+            await self._lead_final(step)
+        else:
+            position = PositionType.FIRST
         self._prepare_next_step(position, times_executed)
 
     def _prepare_next_iteration(self, position: PositionType, times_executed: int):
