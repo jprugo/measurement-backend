@@ -159,8 +159,9 @@ async def stop(
 
 @router.get("/ws")
 @inject
-def websocket_endpoint(query: EventQueryUseCase = Depends(Provide[AppContainer.worker.event_query]),):
-    response = query.get()
-    if response:
+def websocket_endpoint(query: EventQueryUseCase = Depends(Provide[AppContainer.worker.event_query])):
+    try:
+        response = query.get()
         return response.description
-
+    except Exception:
+        return None
