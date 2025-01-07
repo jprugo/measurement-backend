@@ -85,15 +85,3 @@ values
 ('FIRST',1,25,1,'RES'),
 ('SECOND',1,25,1,'ISO'),
 ('THIRD',1,25,1,'WELL');
-
-
-INSERT INTO sensors (brand, reference, sensor_type)
-VALUES
-    ('BrandA', 'Ref001', 'ISO'),
-    ('BrandB', 'Ref002', 'RES'),
-    ('BrandC', 'Ref003', 'WELL');
-
-INSERT INTO measurement_specs (unit, measure_type, sensor_id)
-VALUES
-    ('μΩ', 'RESISTANCE', 1),
-    ('°C', 'TEMPERATURE', 1);
