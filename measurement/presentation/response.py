@@ -13,6 +13,7 @@ class MeasurementSchema(BaseModel):
     value: float
     created_at: datetime
     measure_type: MeasureType
+    unit: Optional[str] = None
     detail: Optional[str] = None
 
     class Config:
