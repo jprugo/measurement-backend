@@ -1,5 +1,6 @@
 import asyncio
 from typing import List
+from measurement.domain.model.value_object import SensorType
 from worker.application.use_cases.worker_flow_status_use_case import UpdateWorkerFlowStatusRequest, WorkerFlowStatusUpdateCommand, WorkerFlowStatusQueryUseCase
 from worker.domain.model.aggregate import StepDefinition, WorkerFlowStatus
 from worker.domain.model.services.worker_service import WorkerService
@@ -35,7 +36,6 @@ class WorkerFlowService():
             logger.logger.info(f'Times executed = {times_executed}')
             logger.logger.info(f'Times to be executed = {times_to_be_executed}')
 
-            # Bucle principal de ejecución de medidas
             while times_executed < times_to_be_executed:
                 measures = self.worker_service.get_measure(step)
                 logger.logger.info('Saving measure and verifying alarm level')
@@ -46,33 +46,29 @@ class WorkerFlowService():
 
                 logger.logger.info('End measure and verifying alarm level')
 
-                # Llamada al tiempo de espera entre iteraciones
                 await self._lead_period(step)
 
-                # Preparar para la siguiente iteración
                 self._prepare_next_iteration(position, times_executed)
-                # Aumentar el contador de ejecuciones
-                times_executed += 1  # Incrementar antes de la siguiente iteración
+                times_executed += 1
 
-            # Cuando se completa la ejecución de todas las iteraciones, avanzar al siguiente paso
             await self._lead_final(step)
+            if step.sensor_type == SensorType.ISO:
+                logger.logger.info("Isolation sensor detected then sending stop signal")
+                self.worker_service.stop_measure()
         else:
             position = PositionType.FIRST
         self._prepare_next_step(position, times_executed)
 
     def _prepare_next_iteration(self, position: PositionType, times_executed: int):
-        # Incrementa el contador de ejecuciones para la siguiente iteración
         logger.logger.info("Moving to next iteration")
         times_executed += 1
         self._register_status(position, times_executed)
 
     def _prepare_next_step(self, position: PositionType, times_executed: int):
-        # Avanza a la siguiente posición
         next_position = self.worker_service.get_next_position(position)
         logger.logger.info(f"Moving to next step with position: {next_position}")
         
-        # Si es necesario reiniciar las ejecuciones en el siguiente paso
-        times_executed = 1  # Reiniciar el contador de ejecuciones si es el primer paso
+        times_executed = 1
         self._register_status(next_position, times_executed)
 
     def _register_status(self, position, times_executed: int):
