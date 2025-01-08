@@ -86,6 +86,7 @@ class ModBusID(enum.Enum):
 
     BATTERY = enum.auto()
     TENSION_DETECTED = enum.auto()
+    VOLTAGE = enum.auto()
 
 def get_last_measurement_id(
         measure_type: MeasureType,
@@ -117,6 +118,8 @@ def get_last_measurement_id(
             return ModBusID.RESISTANCE_3
     elif measure_type == MeasureType.BATTERY:
         return ModBusID.BATTERY
+    elif measure_type == MeasureType.VOLTAGE:
+        return ModBusID.VOLTAGE
         
 
 class LastMeasurementSchema(BaseModel):

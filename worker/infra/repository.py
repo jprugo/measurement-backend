@@ -22,7 +22,6 @@ class EventRepository(RDBRepository):
     
     @staticmethod
     def delete(session: Session, instance: Event):
-        print("Deleting event")
         session.delete(instance)
 
 
