@@ -126,10 +126,12 @@ class WorkerContainer(containers.DeclarativeContainer):
     )
     event_query = providers.Factory(
         EventQueryUseCase,
-        repo=event_repository
+        repo=event_repository,
+        db_session=get_db_session,
     )
     event_command = providers.Factory(
         CreateEventCommand,
+        db_session=get_db_session,
         repo=event_repository
     )
 

@@ -10,9 +10,17 @@ class Event():
     title: str
     description: str
 
-    def __init__(self, title: str, description: str):
-         self.title = title
-         self.description = description
+    @classmethod
+    def create(
+        cls, 
+        title: str,
+        description: str,
+    ) -> Event:
+        # Action
+        return cls(
+            title=title,
+            description=description,
+        )
 
 
 dataclass(eq=False)
