@@ -121,6 +121,30 @@ def get_last_measurement_id(
     elif measure_type == MeasureType.VOLTAGE:
         return ModBusID.VOLTAGE
         
+def get_last_measurement_detail(
+        measure_type: MeasureType,
+        detail: Optional[str] = None
+):
+    if measure_type == MeasureType.RESISTANCE:
+        if detail == "1":
+            return "A-B"
+        elif detail == "2":
+            return "B-C"
+        else:
+            return "C-A"
+    elif measure_type == MeasureType.PRESSURE:
+        if detail == "C":
+            return "I"
+        else:
+            return detail
+    elif measure_type == MeasureType.TEMPERATURE:
+        if detail == "C":
+            return "I"
+        else:
+            return detail
+    else:
+        return detail
+    
 
 class LastMeasurementSchema(BaseModel):
     id: ModBusID
