@@ -12,7 +12,7 @@ from measurement.presentation.response import (
     LastMeasurementResponse, LastMeasurementSchema,
     SensorResponse, SensorSchema, MeasurementSpecSchema, 
     SensorTypeResponse, SensorsResponse, MeasureTypeResponse,
-    UnitResponse, UnitSchema, get_last_measurement_id
+    UnitResponse, UnitSchema, get_last_measurement_id, get_last_measurement_detail
 )
 from measurement.application.use_cases.measurement_use_cases import (
     MeasurementQueryUseCase, GetMeasurementRequest,
@@ -92,7 +92,7 @@ def get_last_measurements(
             value=m.value,
             created_at=m.created_at,
             measure_type=m.measure_type,
-            detail=m.detail,
+            detail=get_last_measurement_detail(measure_type=m.measure_type, detail=m.detail),
             unit=unit
         ))
 
