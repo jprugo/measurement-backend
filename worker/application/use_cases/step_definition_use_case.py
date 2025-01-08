@@ -65,11 +65,16 @@ class DeleteStepDefinitionCommand:
 
 
 class EventQueryUseCase:
-    def __init__(self, repo: EventRepository):
+    def __init__(self, repo: EventRepository, db_session: Callable[[], ContextManager[Session]]):
         self.repo = repo
+        self.db_session = db_session
 
     def get(self) -> Event:
-       return self.repo.get()
+        with self.db_session() as session:
+            value = self.repo.get_first(session)
+            self.repo.delete(session, value)
+            session.commit()
+            return value
     
 
 class CreateEventCommandRequest(BaseModel):
@@ -78,13 +83,17 @@ class CreateEventCommandRequest(BaseModel):
 
 
 class CreateEventCommand:
-    def __init__(self, repo: EventRepository):
+    def __init__(self, repo: EventRepository, db_session: Callable[[], ContextManager[Session]]):
         self.repo = repo
+        self.db_session = db_session
 
     def execute(self, request: CreateEventCommandRequest) -> Event:
-        self.repo.add(
-            Event(
-                title=request.title,
-                description=request.description,
+        with self.db_session() as session:
+            self.repo.add(
+                session=session,
+                instance=Event.create(
+                    title=request.title,
+                    description=request.description,
+                )
             )
-        )
+            session.commit()

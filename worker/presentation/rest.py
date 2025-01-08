@@ -12,7 +12,7 @@ from worker.application.use_cases.step_definition_use_case import (
     CreateStepDefinitionCommand,
     CreateStepDefinitionRequest,
     GetStepDefinitionRequest,
-    EventQueryUseCase
+    EventQueryUseCase, CreateEventCommand, CreateEventCommandRequest
 )
 from worker.domain.model.aggregate import StepDefinition
 from worker.domain.model.value_object import PositionType
@@ -162,6 +162,17 @@ async def stop(
 def websocket_endpoint(query: EventQueryUseCase = Depends(Provide[AppContainer.worker.event_query])):
     try:
         response = query.get()
-        return response.description
+        return response
     except Exception:
         return None
+
+
+@router.post("/ws")
+@inject
+def websocket_endpoint(title: str, description: str, command: CreateEventCommand = Depends(Provide[AppContainer.worker.event_command])):
+    command.execute(
+        request=CreateEventCommandRequest(
+            title=title,
+            description=description
+        )
+    )

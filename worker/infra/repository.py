@@ -6,17 +6,24 @@ from sqlalchemy.orm import Session
 from worker.domain.model.aggregate import Event, StepDefinition, WorkerFlowStatus
 from worker.domain.model.value_object import PositionType
 
-class EventRepository:
+class EventRepository(RDBRepository):
     
     def __init__(self):
-        self.queue = Queue(0)
+        self.queue = []
 
-    def get(self):
-        value = self.queue.get(timeout=5)
-        return value
+    @staticmethod
+    def get_first(session: Session):
+        return session.query(Event).first()
     
-    def add(self, instance: Event):
-        self.queue.put(instance)
+    @staticmethod
+    def add(session: Session, instance: Event):
+        session.add(instance)
+        return instance
+    
+    @staticmethod
+    def delete(session: Session, instance: Event):
+        print("Deleting event")
+        session.delete(instance)
 
 
 class StepDefinitionRepository(RDBRepository):

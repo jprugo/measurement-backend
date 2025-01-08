@@ -73,6 +73,11 @@ CREATE TABLE IF NOT EXISTS worker_flow_status (
     position TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL
+);
 
 INSERT INTO configurations (name, value, treatment_as)
 VALUES
@@ -85,3 +90,6 @@ values
 ('FIRST',1,25,1,'RES'),
 ('SECOND',1,25,1,'ISO'),
 ('THIRD',1,25,1,'WELL');
+
+INSERT INTO worker_flow_status (times_executed,"position") VALUES
+(1,'FIRST');
