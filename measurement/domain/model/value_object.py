@@ -18,16 +18,20 @@ class Unit(ValueObject, str, enum.Enum):
     GIGA_OHM = "GΩ"  # Mega-ohm
 
     VOLTS = "V"
-   
-    MILLIMETERS_PER_SECOND = "mm/s"  # Velocidad (Vibración)
-    G_FORCES = "g"
+    MILI_VOLTS = "mV"  # Mili-volts
+
+    AMPER = "A"
+    MILI_AMPER = "mA"  # Mili-ampers
+
+    MILLIMETERS_PER_SECOND = "mm/s"  # Velocidad (vibration)
+    G_FORCES = "G"
 
     BAR = "bar"
     PASCAL = "Pa"  # Pascal
     PSI = "PSI"  # Pounds per square inch
 
 
-class MeasureType(ValueObject, str ,enum.Enum):
+class MeasureType(ValueObject, str, enum.Enum):
     ISOLATION = "ISOLATION"
     RESISTANCE = "RESISTANCE"
     TEMPERATURE = "TEMPERATURE"
@@ -35,6 +39,7 @@ class MeasureType(ValueObject, str ,enum.Enum):
     VIBRATION = "VIBRATION"
     BATTERY = "BATTERY"
     VOLTAGE = "VOLTAGE"
+    CURRENT = "CURRENT"
 
     @classmethod
     def get_units(cls, measure_type: str) -> List[Unit]:
@@ -52,6 +57,8 @@ class MeasureType(ValueObject, str ,enum.Enum):
             return [Unit.PERCENTAGE]
         elif measure_type == cls.VOLTAGE:
             return [Unit.VOLTS]
+        elif measure_type == cls.CURRENT:
+            return [Unit.AMPER, Unit.MILI_AMPER]
         return []
 
 
@@ -63,9 +70,18 @@ class SensorType(ValueObject, str, enum.Enum):
     @classmethod
     def get_measure_types(cls, sensor_type: str) -> List[MeasureType]:
         if sensor_type == cls.ISO:
-            return [MeasureType.ISOLATION, MeasureType.VOLTAGE]
+            return [
+                MeasureType.ISOLATION,
+                MeasureType.VOLTAGE,
+                MeasureType.CURRENT
+            ]
         elif sensor_type == cls.RES:
             return [MeasureType.RESISTANCE]
         elif sensor_type == cls.WELL:
-            return [MeasureType.PRESSURE, MeasureType.VIBRATION, MeasureType.TEMPERATURE]
+            return [
+                MeasureType.PRESSURE,
+                MeasureType.VIBRATION,
+                MeasureType.TEMPERATURE,
+                MeasureType.CURRENT
+            ]
         return []
