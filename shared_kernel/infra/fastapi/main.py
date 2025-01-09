@@ -16,7 +16,7 @@ app = FastAPI(
     title="Measurement Worker",
     contact={
         "name": "Gigawatt SAS",
-        "email": "",
+        "email": "gigawatt-admin@gmail.com",
     },
 )
 
