@@ -79,8 +79,8 @@ def get_measurements(
     unit_schema = None
     if unit:
         unit_schema = UnitSchema(
-            name= unit.name,
-            value= unit.value
+            name= unit,
+            value= unit
         )
     measurements = measurement_query.get_measures(request=request)
     return MeasurementResponse(
