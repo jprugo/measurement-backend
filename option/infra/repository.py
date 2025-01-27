@@ -12,7 +12,9 @@ class OptionRepository:
                 Option(title="Resistencia", resource_path= "resistencia.html"),
                 Option(title="Temperatura", resource_path= "temperatura.html"),
                 Option(title="Vibracion", resource_path= "vibracion.html"),
-                Option(title="Presiòn", resource_path= "presion.html"),
+                Option(title="Presión", resource_path= "presion.html"),
+                Option(title="Voltaje", resource_path= "voltaje.html"),
+                Option(title="Corriente", resource_path= "corriente.html"),
             ]
         elif application_type == ApplicationType.LIGHT:
             return [
