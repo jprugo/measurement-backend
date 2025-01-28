@@ -65,6 +65,8 @@ class SensorResponse(BaseResponse):
 class MeasurementResponse(BaseResponse):
     result: List[MeasurementSchema] = None
 
+class MeasurementResponse2(BaseResponse):
+    result: Optional[MeasurementSchema] = None
 
 class ModBusID(enum.Enum):
     INTAKE_PRESSURE = enum.auto()
@@ -76,10 +78,8 @@ class ModBusID(enum.Enum):
     X_VIBRATION = enum.auto()
     Z_VIBRATION = enum.auto()
 
-    CURRENT_TOOL = enum.auto()
-    CURRENT_VOLTAGE = enum.auto()
-
-    ISOLATION = enum.auto()
+    TOOL_CURRENT = enum.auto()
+    TOOL_VOLTAGE = enum.auto()
 
     RESISTANCE_1 = enum.auto()
     RESISTANCE_2 = enum.auto()
@@ -87,7 +87,10 @@ class ModBusID(enum.Enum):
 
     BATTERY = enum.auto()
     TENSION_DETECTED = enum.auto()
-    VOLTAGE = enum.auto()
+
+    ISOLATION = enum.auto()
+    ISOLATION_CURRENT = enum.auto()
+    ISOLATION_VOLTAGE = enum.auto()
 
 def get_last_measurement_id(
         measure_type: MeasureType,
@@ -119,8 +122,14 @@ def get_last_measurement_id(
             return ModBusID.RESISTANCE_3
     elif measure_type == MeasureType.BATTERY:
         return ModBusID.BATTERY
-    elif measure_type == MeasureType.VOLTAGE:
-        return ModBusID.VOLTAGE
+    elif measure_type == MeasureType.ISOLATION_VOLTAGE:
+        return ModBusID.ISOLATION_VOLTAGE
+    elif measure_type == MeasureType.LEAKEGE_CURRENT:
+        return ModBusID.ISOLATION_CURRENT
+    elif measure_type == MeasureType.TOOL_CURRENT:
+        return ModBusID.TOOL_CURRENT
+    elif measure_type == MeasureType.TOOL_VOLTAGE:
+        return ModBusID.TOOL_VOLTAGE
         
 def get_last_measurement_detail(
         measure_type: MeasureType,

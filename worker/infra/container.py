@@ -27,7 +27,7 @@ from worker.application.use_cases.step_definition_use_case import (
     UpdateStepDefinitionCommand,
     CreateStepDefinitionCommand,
     DeleteStepDefinitionCommand,
-    EventQueryUseCase, CreateEventCommand
+    EventQueryUseCase, CreateEventCommand, DeleteEventCommand
 )
 
 from worker.domain.model.step_definition_service import StepDefinitionService
@@ -131,6 +131,11 @@ class WorkerContainer(containers.DeclarativeContainer):
     )
     event_command = providers.Factory(
         CreateEventCommand,
+        db_session=get_db_session,
+        repo=event_repository
+    )
+    delete_event_command = providers.Factory(
+        DeleteEventCommand,
         db_session=get_db_session,
         repo=event_repository
     )

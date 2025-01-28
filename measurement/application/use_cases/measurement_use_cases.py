@@ -20,6 +20,10 @@ class GetMeasurementRequest(BaseModel):
     end_date: datetime
     detail: Optional[str] = None
 
+class GetMeasurementByTimeDeltaRequest(BaseModel):
+    measure_type: MeasureType
+    minutes_ago: int
+    detail: Optional[str] = None
 
 class MeasurementQueryUseCase:
     def __init__(self, repo: MeasurementRepository, db_session: Callable[[], ContextManager[Session]]):
@@ -40,6 +44,16 @@ class MeasurementQueryUseCase:
     def get_last_measures(self) -> List[Measure]:
         with self.db_session() as session:
             measures: List[Measure] = self.repo.find_latest_records_for_all_measure_types(session=session)
+            return measures
+        
+    def get_measure_by_time_delta(self, request: GetMeasurementByTimeDeltaRequest) -> Measure:
+        with self.db_session() as session:
+            measures: List[Measure] = self.repo.find_by_time_delta(
+                session=session,
+                minutes_ago=request.minutes_ago,
+                measure_type=request.measure_type,
+                detail= request.detail
+            )
             return measures
 
 

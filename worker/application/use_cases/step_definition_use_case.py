@@ -1,8 +1,10 @@
-from typing import Callable, ContextManager, List
+from typing import Callable, ContextManager, List, Optional
 
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from alarming.domain.model.value_object import AlarmType
+from measurement.domain.model.value_object import MeasureType
 from worker.domain.model.aggregate import Event, StepDefinition
 from worker.domain.model.value_object import PositionType
 from worker.domain.model.step_definition_service import (
@@ -72,14 +74,26 @@ class EventQueryUseCase:
     def get(self) -> Event:
         with self.db_session() as session:
             value = self.repo.get_first(session)
-            self.repo.delete(session, value)
-            session.commit()
             return value
     
 
 class CreateEventCommandRequest(BaseModel):
     title: str
     description: str
+    measure_type: Optional[MeasureType] = None
+    alarm_type: Optional[AlarmType] = None
+
+
+class DeleteEventCommand:
+    def __init__(self, repo: EventRepository, db_session: Callable[[], ContextManager[Session]]):
+        self.repo = repo
+        self.db_session = db_session
+
+    def execute(self) -> Event:
+        with self.db_session() as session:
+            event_saved = self.repo.get_first(session=session)
+            self.repo.delete(session, event_saved)
+            session.commit()
 
 
 class CreateEventCommand:
@@ -89,11 +103,15 @@ class CreateEventCommand:
 
     def execute(self, request: CreateEventCommandRequest) -> Event:
         with self.db_session() as session:
-            self.repo.add(
-                session=session,
-                instance=Event.create(
-                    title=request.title,
-                    description=request.description,
+            event_saved = self.repo.get_first(session=session)
+            if event_saved is None:
+                self.repo.add(
+                    session=session,
+                    instance=Event.create(
+                        title=request.title,
+                        description=request.description,
+                        measure_type=request.measure_type.vale,
+                        alarm_type=request.alarm_type.value
+                    )
                 )
-            )
-            session.commit()
+                session.commit()

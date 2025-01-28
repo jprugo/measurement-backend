@@ -22,6 +22,8 @@ class Unit(ValueObject, str, enum.Enum):
 
     AMPER = "A"
     MILI_AMPER = "mA"  # Mili-ampers
+    NANO_AMPER = "nA"  # Mili-ampers
+    MICRO_AMPER = "uA"  # Mili-ampers
 
     MILLIMETERS_PER_SECOND = "mm/s"  # Velocidad (vibration)
     G_FORCES = "G"
@@ -38,15 +40,21 @@ class MeasureType(ValueObject, str, enum.Enum):
     PRESSURE = "PRESSURE"
     VIBRATION = "VIBRATION"
     BATTERY = "BATTERY"
-    VOLTAGE = "VOLTAGE"
-    CURRENT = "CURRENT"
+
+    # WELL
+    TOOL_VOLTAGE = "TOOL_VOLTAGE"
+    TOOL_CURRENT = "TOOL_CURRENT"
+
+    # ISOLATION
+    ISOLATION_VOLTAGE = "ISOLATION_VOLTAGE"
+    LEAKEGE_CURRENT = "LEAKEGE_CURRENT"
 
     @classmethod
     def get_units(cls, measure_type: str) -> List[Unit]:
         if measure_type == cls.ISOLATION:
             return [Unit.MEGA_OHM, Unit.GIGA_OHM]
         elif measure_type == cls.RESISTANCE:
-            return [Unit.OMHN, Unit.MEGA_OHM,]
+            return [Unit.OMHN, Unit.MILI_OHM,]
         elif measure_type == cls.TEMPERATURE:
             return [Unit.CENTIGRADES, Unit.FARENHEIT]
         elif measure_type == cls.PRESSURE:
@@ -55,10 +63,14 @@ class MeasureType(ValueObject, str, enum.Enum):
             return [Unit.MILLIMETERS_PER_SECOND, Unit.G_FORCES]
         elif measure_type == cls.BATTERY:
             return [Unit.PERCENTAGE]
-        elif measure_type == cls.VOLTAGE:
+        elif measure_type == cls.TOOL_VOLTAGE: # WELL
             return [Unit.VOLTS]
-        elif measure_type == cls.CURRENT:
-            return [Unit.AMPER, Unit.MILI_AMPER]
+        elif measure_type == cls.TOOL_CURRENT: # WELL
+            return [Unit.MICRO_AMPER, Unit.MILI_AMPER]
+        elif measure_type == cls.ISOLATION_VOLTAGE: # ISO
+            return [Unit.VOLTS]
+        elif measure_type == cls.LEAKEGE_CURRENT: # ISO
+            return [Unit.MICRO_AMPER, Unit.NANO_AMPER]
         return []
 
 
@@ -72,8 +84,8 @@ class SensorType(ValueObject, str, enum.Enum):
         if sensor_type == cls.ISO:
             return [
                 MeasureType.ISOLATION,
-                MeasureType.VOLTAGE,
-                MeasureType.CURRENT
+                MeasureType.ISOLATION_VOLTAGE,
+                MeasureType.LEAKEGE_CURRENT
             ]
         elif sensor_type == cls.RES:
             return [MeasureType.RESISTANCE]
@@ -82,6 +94,7 @@ class SensorType(ValueObject, str, enum.Enum):
                 MeasureType.PRESSURE,
                 MeasureType.VIBRATION,
                 MeasureType.TEMPERATURE,
-                MeasureType.CURRENT
+                MeasureType.TOOL_CURRENT,
+                MeasureType.TOOL_VOLTAGE
             ]
         return []

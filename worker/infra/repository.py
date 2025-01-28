@@ -8,9 +8,6 @@ from worker.domain.model.value_object import PositionType
 
 class EventRepository(RDBRepository):
     
-    def __init__(self):
-        self.queue = []
-
     @staticmethod
     def get_first(session: Session):
         return session.query(Event).first()
