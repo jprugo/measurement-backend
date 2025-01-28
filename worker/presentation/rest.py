@@ -3,9 +3,12 @@ from typing import List, Optional
 import asyncio
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
+from alarming.domain.model.value_object import AlarmType
+from measurement.domain.model.value_object import MeasureType
 from worker.application.use_cases.worker_flow_status_use_case import UpdateWorkerFlowStatusRequest, WorkerFlowStatusUpdateCommand, WorkerFlowStatusQueryUseCase
 from worker.presentation.response import StepDefinitionResponse, StepDefinitionSchema
 from worker.application.use_cases.step_definition_use_case import (
+    DeleteEventCommand,
     StepDefinitionQueryUseCase,
     UpdateStepDefinitionCommand,
     UpdateStepDefinitionRequest,
@@ -159,7 +162,7 @@ async def stop(
 
 @router.get("/ws")
 @inject
-def websocket_endpoint(query: EventQueryUseCase = Depends(Provide[AppContainer.worker.event_query])):
+def get_event(query: EventQueryUseCase = Depends(Provide[AppContainer.worker.event_query])):
     try:
         response = query.get()
         return response
@@ -167,12 +170,30 @@ def websocket_endpoint(query: EventQueryUseCase = Depends(Provide[AppContainer.w
         return None
 
 
+@router.delete("/ws")
+@inject
+def delete_event(command: DeleteEventCommand = Depends(Provide[AppContainer.worker.delete_event_command])):
+    try:
+        response = command.execute()
+        return response
+    except Exception:
+        return None
+
+
 @router.post("/ws")
 @inject
-def websocket_endpoint(title: str, description: str, command: CreateEventCommand = Depends(Provide[AppContainer.worker.event_command])):
+def post_event(
+    title: str,
+    description: str,
+    measure_type: Optional[MeasureType]= None,
+    alarm_type: Optional[AlarmType] = None,
+    command: CreateEventCommand = Depends(Provide[AppContainer.worker.event_command])
+):
     command.execute(
         request=CreateEventCommandRequest(
             title=title,
-            description=description
+            description=description,
+            measure_type=measure_type,
+            alarm_type=alarm_type
         )
     )

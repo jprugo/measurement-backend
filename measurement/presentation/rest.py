@@ -8,14 +8,14 @@ from measurement.domain.model.services.sensor_service import CreateSensorRequest
 from measurement.domain.model.value_object import MeasureType, SensorType, Unit
 from measurement.domain.model.aggregate import Measure, Sensor
 from measurement.presentation.response import (
-    MeasurementResponse, MeasurementSchema,
+    MeasurementResponse, MeasurementResponse2, MeasurementSchema,
     LastMeasurementResponse, LastMeasurementSchema,
     SensorResponse, SensorSchema, MeasurementSpecSchema, 
     SensorTypeResponse, SensorsResponse, MeasureTypeResponse,
     UnitResponse, UnitSchema, get_last_measurement_id, get_last_measurement_detail
 )
 from measurement.application.use_cases.measurement_use_cases import (
-    MeasurementQueryUseCase, GetMeasurementRequest,
+    MeasurementQueryUseCase, GetMeasurementRequest, GetMeasurementByTimeDeltaRequest,
     CreateMeasurementCommand,
 )
 from measurement.application.use_cases.sensor_use_cases import (
@@ -53,6 +53,25 @@ def map_unit_schemas(units: List[Unit]) -> List[UnitSchema]:
     return [UnitSchema(name=u.name, value=u) for u in units]
 
 # API routes
+@router.get("/getByTimeDelta")
+@inject
+def get_measurements(
+    measure_type: MeasureType,
+    minutes: int,
+    detail: Optional[str] = None,
+    measurement_query: MeasurementQueryUseCase = Depends(Provide[AppContainer.measurement.query]),
+) -> MeasurementResponse2:
+    request = GetMeasurementByTimeDeltaRequest(
+        measure_type=measure_type,
+        minutes_ago=minutes,
+        detail=detail
+    )
+    measurement = measurement_query.get_measure_by_time_delta(request=request)
+    return MeasurementResponse2(
+        detail="ok",
+        result=MeasurementSchema.from_orm(measurement) if measurement is not None  else None
+    )
+
 @router.get("/")
 @inject
 def get_measurements(

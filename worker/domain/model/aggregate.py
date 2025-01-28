@@ -1,7 +1,9 @@
 from __future__ import annotations
+from typing import Optional
+from alarming.domain.model.value_object import AlarmType
 from shared_kernel.domain.entity import AggregateRoot
 from dataclasses import dataclass
-from measurement.domain.model.value_object import SensorType
+from measurement.domain.model.value_object import MeasureType, SensorType
 from worker.domain.model.value_object import PositionType
 
 
@@ -10,16 +12,23 @@ class Event():
     title: str
     description: str
 
+    alarm_type: Optional[str] = None
+    measure_type: Optional[str] = None
+
     @classmethod
     def create(
         cls, 
         title: str,
         description: str,
+        alarm_type: str,
+        measure_type: str
     ) -> Event:
         # Action
         return cls(
             title=title,
             description=description,
+            alarm_type=alarm_type,
+            measure_type=measure_type,
         )
 
 
