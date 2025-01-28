@@ -65,6 +65,8 @@ class SensorResponse(BaseResponse):
 class MeasurementResponse(BaseResponse):
     result: List[MeasurementSchema] = None
 
+class MeasurementResponse2(BaseResponse):
+    result: Optional[MeasurementSchema] = None
 
 class ModBusID(enum.Enum):
     INTAKE_PRESSURE = enum.auto()

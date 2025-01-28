@@ -76,7 +76,9 @@ CREATE TABLE IF NOT EXISTS worker_flow_status (
 CREATE TABLE IF NOT EXISTS events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    description TEXT NOT NULL
+    description TEXT NOT NULL,
+    measure_type TEXT,
+    alarm_type TEXT
 );
 
 INSERT INTO configurations (name, value, treatment_as)

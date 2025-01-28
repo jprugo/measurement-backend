@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy.orm import Session, Query, joinedload
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from measurement.domain.model.aggregate import Measure, MeasureType, Sensor, MeasurementSpec
 
 from shared_kernel.infra.database.repository import RDBRepository
@@ -25,6 +25,15 @@ class MeasurementRepository(RDBRepository):
 
         return query.all()
 
+    @staticmethod
+    def find_by_time_delta(session: Session, measure_type: MeasureType, minutes_ago: int, detail):
+        time_limit = datetime.now() - timedelta(minutes=minutes_ago)
+        return (
+            session.query(Measure)
+            .filter(Measure.measure_type == measure_type, Measure.detail == detail ,Measure.created_at <= time_limit)
+            .order_by(Measure.created_at.desc())
+            .first()
+        )
 
     @staticmethod
     def find_latest_records_for_all_measure_types(session: Session):

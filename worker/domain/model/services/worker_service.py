@@ -62,8 +62,10 @@ class WorkerService:
             return self.measurement_query.get_measures(step.sensor_type)
         except Exception as e:
             self._register_event(
-                "Alerta comunicacion",
-                "Ocurrio un error de comunicacion con el dispositivo"
+                "ATENCION",
+                "Error de comunicacion durante lectura de sensor: {}",
+                None,
+                None
             )
             logger.logger.exception(e)
 
@@ -117,16 +119,20 @@ class WorkerService:
 
     def _trigger_alarm(self, alarm_definition: AlarmDefinition, measure_value: float):
         self._register_event(
-            "Alerta Medicion",
-            f"Alarma disparada {alarm_definition.alarm_type} durante la medicion de {alarm_definition.measure_type}"
+            "ATENCION",
+            f"Alarma disparada",
+            alarm_definition.measure_type,
+            alarm_definition.alarm_type
         )
         self._reproduce(sound_path= alarm_definition.sound_path)
         self._save_alarm(alarm_definition=alarm_definition, measure_value=measure_value)
 
-    def _register_event(self, title, description):
+    def _register_event(self, title, description, measure_type, alarm_type):
         self.event_command.execute(
             CreateEventCommandRequest(
                 title=title,
-                description=description
+                description=description,
+                measure_type=measure_type,
+                alarm_type=alarm_type
             )
         )
