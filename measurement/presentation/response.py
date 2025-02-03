@@ -96,64 +96,47 @@ def get_last_measurement_id(
         measure_type: MeasureType,
         detail: Optional[str] = None
     ):
+    # Pressure
     if measure_type == MeasureType.PRESSURE:
-        if detail == "C":
+        if detail == "Pi":
             return ModBusID.INTAKE_PRESSURE
         else:
             return ModBusID.DISCHARGE_PRESSURE
+    # Temperature
     elif measure_type == MeasureType.TEMPERATURE:
-        if detail == "C":
+        if detail == "Pd":
             return ModBusID.INTAKE_TEMPERATURE
         else:
             return ModBusID.ENGINE_TEMPERATURE
+    # Vibration
     elif measure_type == MeasureType.VIBRATION:
-        if detail == "X":
+        if detail == "Vx":
             return ModBusID.X_VIBRATION
         else:
             return ModBusID.Z_VIBRATION
-    elif measure_type == MeasureType.ISOLATION:
-        return ModBusID.ISOLATION
+    # RESISTANCE
     elif measure_type == MeasureType.RESISTANCE:
-        if detail == "1":
+        if detail == "A-B":
             return ModBusID.RESISTANCE_1
-        elif detail == "2":
+        elif detail == "B-C":
             return ModBusID.RESISTANCE_2
         else:
             return ModBusID.RESISTANCE_3
+    # BATTERY
     elif measure_type == MeasureType.BATTERY:
         return ModBusID.BATTERY
+     # ISOLATION
+    elif measure_type == MeasureType.ISOLATION:
+        return ModBusID.ISOLATION
     elif measure_type == MeasureType.ISOLATION_VOLTAGE:
         return ModBusID.ISOLATION_VOLTAGE
     elif measure_type == MeasureType.LEAKEGE_CURRENT:
         return ModBusID.ISOLATION_CURRENT
+    # WELL
     elif measure_type == MeasureType.TOOL_CURRENT:
         return ModBusID.TOOL_CURRENT
     elif measure_type == MeasureType.TOOL_VOLTAGE:
         return ModBusID.TOOL_VOLTAGE
-        
-def get_last_measurement_detail(
-        measure_type: MeasureType,
-        detail: Optional[str] = None
-):
-    if measure_type == MeasureType.RESISTANCE:
-        if detail == "1":
-            return "A-B"
-        elif detail == "2":
-            return "B-C"
-        else:
-            return "C-A"
-    elif measure_type == MeasureType.PRESSURE:
-        if detail == "C":
-            return "I"
-        else:
-            return detail
-    elif measure_type == MeasureType.TEMPERATURE:
-        if detail == "C":
-            return "I"
-        else:
-            return detail
-    else:
-        return detail
     
 
 class LastMeasurementSchema(BaseModel):
