@@ -33,6 +33,8 @@ from worker.application.use_cases.step_definition_use_case import (
 from worker.domain.model.step_definition_service import StepDefinitionService
 from worker.domain.model.services.worker_service import WorkerService
 
+from worker.application.services.worker_flow_service import WorkerFlowService
+
 from shared_kernel.infra.database.connection import get_db_session
 
 
@@ -172,4 +174,12 @@ class WorkerContainer(containers.DeclarativeContainer):
         WorkerFlowStatusUpdateCommand,
         service=worker_flow_status_service,
         db_session=get_db_session
+    )
+
+    # Worker Flow Service
+    worker_flow_service = providers.Factory(
+        WorkerFlowService,
+        worker_service=worker_service,
+        worker_flow_status_query=worker_flow_status_query,
+        worker_flow_status_command=worker_flow_status_command
     )

@@ -59,15 +59,16 @@ class WorkerService:
     def get_measure(self, step: StepDefinition) -> List[DeviceMeasure]:
         logger.logger.info(f"Getting {step.sensor_type} measure from device")
         try:
-            return self.measurement_query.get_measures(step.sensor_type)
+            result = self.measurement_query.get_measures(step.sensor_type)
+            return result
         except Exception as e:
+            logger.logger.exception(e)
             self._register_event(
                 "ATENCION",
                 "Error de comunicacion durante lectura de sensor: {}",
                 None,
                 None
             )
-            logger.logger.exception(e)
 
     def stop_measure(self) -> None:
         logger.logger.info(f"Sending stop message...")

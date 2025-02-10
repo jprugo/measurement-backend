@@ -5,7 +5,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 from alarming.domain.model.value_object import AlarmType
 from measurement.domain.model.value_object import MeasureType
-from worker.application.use_cases.worker_flow_status_use_case import UpdateWorkerFlowStatusRequest, WorkerFlowStatusUpdateCommand, WorkerFlowStatusQueryUseCase
+from worker.application.use_cases.worker_flow_status_use_case import UpdateWorkerFlowStatusRequest, WorkerFlowStatusUpdateCommand
 from worker.presentation.response import StepDefinitionResponse, StepDefinitionSchema
 from worker.application.use_cases.step_definition_use_case import (
     DeleteEventCommand,
@@ -19,7 +19,6 @@ from worker.application.use_cases.step_definition_use_case import (
 )
 from worker.domain.model.aggregate import StepDefinition
 from worker.domain.model.value_object import PositionType
-from worker.domain.model.services.worker_service import WorkerService
 from worker.application.services.worker_flow_service import WorkerFlowService
 
 from shared_kernel.infra.container import AppContainer
@@ -69,66 +68,47 @@ def post_step_definition(
 ###############################################################
 #                           FLOW                              #
 ###############################################################
-worker_service = None
 worker_task: Optional[asyncio.Task] = None
 
 
 @router.get("/start")
 @inject
 async def start(
-    service: WorkerService = Depends(Provide[AppContainer.worker.worker_service]),
-    worker_flow_status_query: WorkerFlowStatusQueryUseCase = Depends(Provide[AppContainer.worker.worker_flow_status_query]),
-    worker_flow_status_command: WorkerFlowStatusUpdateCommand = Depends(Provide[AppContainer.worker.worker_flow_status_command]),
+    worker_flow_service: WorkerFlowService = Depends(Provide[AppContainer.worker.worker_flow_service]),
 ):
-    global worker_service, worker_task
+    global worker_task
 
-    if worker_service is None:
-        worker_service = WorkerFlowService(
-            worker_service=service,
-            worker_flow_status_query=worker_flow_status_query,
-            worker_flow_status_command=worker_flow_status_command
-        )
+    async def run_worker():
+        while True:
+            await worker_flow_service.handle()     
+            await asyncio.sleep(20)
 
-        async def run_worker():
-            while True:
-                await worker_service.handle()
-                time.sleep(10)
-                
-        worker_task = asyncio.create_task(run_worker())
-
-        return {"status": "Task started"}
+    if worker_task and not worker_task.done():
+        return {"status": "Task already running"}
     else:
-        return {"status": "Task resumed"}
+        worker_task = asyncio.create_task(run_worker())
+        return {"status": "Task started"}
 
 
 @router.get("/stop")
 @inject
 async def stop(
-    service: WorkerService = Depends(Provide[AppContainer.worker.worker_service]),
     worker_flow_status_command: WorkerFlowStatusUpdateCommand = Depends(Provide[AppContainer.worker.worker_flow_status_command]),
 ):
-    global worker_service, worker_task
+    global worker_task
 
-    if worker_service:
-        # Cambiar el estado del worker a "detenido"
+    if worker_task and not worker_task.done():
         worker_flow_status_command.execute(
             UpdateWorkerFlowStatusRequest(
                 position=PositionType.FIRST,
                 times_executed=1
             )
         )
-        service.stop_measure()
-
-        # Cancelar la tarea en segundo plano
-        if worker_task:
-            worker_task.cancel()
-            try:
-                await worker_task
-            except asyncio.CancelledError:
-                pass
-
-        worker_service = None
-        worker_task = None
+        worker_task.cancel()
+        try:
+            await worker_task
+        except asyncio.CancelledError:
+            pass
 
         return {"status": "Task stopped"}
     else:
@@ -137,23 +117,16 @@ async def stop(
 
 @router.get("/pause")
 @inject
-async def stop(
-    service: WorkerService = Depends(Provide[AppContainer.worker.worker_service]),
+async def pause(
 ):
-    global worker_service, worker_task
+    global worker_task
 
-    if worker_service:
-        service.stop_measure()
-
-        if worker_task:
-            worker_task.cancel()
-            try:
-                await worker_task
-            except asyncio.CancelledError:
-                pass
-
-        worker_service = None
-        worker_task = None
+    if worker_task and not worker_task.done():
+        worker_task.cancel()
+        try:
+            await worker_task
+        except asyncio.CancelledError:
+            pass
 
         return {"status": "Task paused"}
     else:

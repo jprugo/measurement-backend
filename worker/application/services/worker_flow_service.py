@@ -9,6 +9,7 @@ from worker.domain.model.value_object import PositionType
 
 
 class WorkerFlowService():
+
     def __init__(
                 self, 
                 worker_service: WorkerService,
@@ -21,12 +22,14 @@ class WorkerFlowService():
         
     async def handle(self):
         status: WorkerFlowStatus = self.worker_flow_status_query.get_worker_flow_status()
-
+        logger.logger.info(status)
         position = PositionType.from_value(status.position)
-        logger.logger.info(f"Handling position: {position}")
+        logger.logger.info(f"Handling position: {position} | Service: {str(self)}")
         
         # Step Definition Query
+        logger.logger.info("Getting step definition")
         data = self.worker_service.get_step_definition_from_position(position)
+        logger.logger.info(data)
         if data:
             step = data[0]
             measure_history: List[float] = []
@@ -39,12 +42,12 @@ class WorkerFlowService():
             while times_executed < times_to_be_executed:
                 measures = self.worker_service.get_measure(step)
                 logger.logger.info('Saving measure and verifying alarm level')
+                if measures:
+                    for measure in measures:
+                        self.worker_service.register_measure(measure, measure_history)
+                        self.worker_service.verify_alarm_level(measure, measure_history)
 
-                for measure in measures:
-                    self.worker_service.register_measure(measure, measure_history)
-                    self.worker_service.verify_alarm_level(measure, measure_history)
-
-                logger.logger.info('End measure and verifying alarm level')
+                    logger.logger.info('End measure and verifying alarm level')
 
                 await self._lead_period(step)
 
@@ -58,6 +61,7 @@ class WorkerFlowService():
         else:
             position = PositionType.FIRST
         self._prepare_next_step(position, times_executed)
+
 
     def _prepare_next_iteration(self, position: PositionType, times_executed: int):
         logger.logger.info("Moving to next iteration")

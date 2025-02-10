@@ -1,9 +1,8 @@
 from __future__ import annotations
 from typing import Optional
-from alarming.domain.model.value_object import AlarmType
 from shared_kernel.domain.entity import AggregateRoot
 from dataclasses import dataclass
-from measurement.domain.model.value_object import MeasureType, SensorType
+from measurement.domain.model.value_object import SensorType
 from worker.domain.model.value_object import PositionType
 
 

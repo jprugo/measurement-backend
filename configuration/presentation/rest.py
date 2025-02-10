@@ -23,6 +23,7 @@ from configuration.application.use_case import (
 from configuration.domain.model.aggregate import Configuration
 from shared_kernel.infra.container import AppContainer
 import pygame
+from utils.logger import logger
 
 
 router = APIRouter(prefix="/configuration", tags=['configuration'])
@@ -82,7 +83,11 @@ def setup(
 def setup(
     configuration_query: ConfigurationQueryUseCase = Depends(Provide[AppContainer.configuration.query]),
 ):
-    sound_path = configuration_query.get_configuration(request = GetConfigurationRequest(name='soundPath'))
-    pygame.mixer.init()
-    pygame.mixer.music.load(sound_path)
-    pygame.mixer.music.play()
+    try:
+        sound_path = configuration_query.get_configuration(request = GetConfigurationRequest(name='soundPath'))
+        pygame.mixer.init()
+        pygame.mixer.music.load(sound_path)
+        pygame.mixer.music.play()
+    except Exception as e:
+        logger.error(e)
+    

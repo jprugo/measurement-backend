@@ -58,7 +58,7 @@ def map_unit_schemas(units: List[Unit]) -> List[UnitSchema]:
 def get_measurements(
     measure_type: MeasureType,
     minutes: int,
-    detail: Optional[str] = None,
+    detail: Optional[str] = '',
     measurement_query: MeasurementQueryUseCase = Depends(Provide[AppContainer.measurement.query]),
 ) -> MeasurementResponse2:
     request = GetMeasurementByTimeDeltaRequest(
