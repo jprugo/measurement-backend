@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -13,6 +14,7 @@ class CreateMeasurementRequest(BaseModel):
     value: float
     measure_type: MeasureType
     detail: Optional[str] = None
+    date_time: Optional[datetime] = None
 
 
 class MeasurementService:
@@ -23,7 +25,8 @@ class MeasurementService:
         measure = Measure.create(
             value= request.value,
             measure_type= request.measure_type,
-            detail= request.detail
+            detail= request.detail,
+            created_at=request.date_time
         ) 
         self.repo.add(instance=measure, session=session)
         return measure
