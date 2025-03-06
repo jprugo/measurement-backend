@@ -18,11 +18,11 @@ class Measure(AggregateRoot):
 
     @classmethod
     def create(
-        cls, value: float, measure_type: MeasureType, detail: Optional[str] = None
+        cls, value: float, measure_type: MeasureType, detail: Optional[str] = None, created_at=Optional[datetime]
     ) -> Measure:
         return cls(
             value=value,
-            created_at=datetime.now(),
+            created_at= datetime.now() if not created_at else created_at,
             measure_type=measure_type,
             detail=detail,
         )
