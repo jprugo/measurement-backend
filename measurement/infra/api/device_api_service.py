@@ -26,7 +26,7 @@ def retry_request(max_retries=3, delay=2):
         return wrapper
     return decorator
 
-class DeviceApiService:
+class MeasurementDeviceApiService:
 
     def __init__(self, config_query: ConfigurationQueryUseCase) -> None:
         self.base_url = config_query.get_configuration(

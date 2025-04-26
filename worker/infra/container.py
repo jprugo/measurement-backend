@@ -6,7 +6,7 @@ from configuration.application.use_case import ConfigurationQueryUseCase
 
 # Measurement
 from measurement.application.use_cases.measurement_use_cases import DeviceMeasurementQueryUseCase, CreateMeasurementCommand
-from measurement.infra.api.device_api_service import DeviceApiService
+from measurement.infra.api.device_api_service import MeasurementDeviceApiService
 from measurement.infra.api.device_repository import DeviceMeasureRepository
 from measurement.infra.repository import MeasurementRepository
 from measurement.domain.model.services.measurement_service import MeasurementService
@@ -19,6 +19,9 @@ from alarming.infra.repository import AlarmDefinitionRepository, AlarmRepository
 
 # Worker
 from worker.application.use_cases.worker_flow_status_use_case import WorkerFlowStatusQueryUseCase, WorkerFlowStatusUpdateCommand
+from worker.application.use_cases.communicate_with_device import SendOfflineModeSignalCommand
+from worker.infra.api.device_api_service import WorkerDeviceApiService
+
 from worker.domain.model.services.worker_flow_status_service import WorkerFlowStatusService
 from worker.infra.repository import StepDefinitionRepository, EventRepository, WorkerFlowStatusRepository
 
@@ -75,14 +78,14 @@ class WorkerContainer(containers.DeclarativeContainer):
 
     # DEVICE MEASUREMENT QUERY
     device_repo = providers.Factory(DeviceMeasureRepository)
-    api_service = providers.Factory(
-        DeviceApiService,
+    measurement_api_service = providers.Factory(
+        MeasurementDeviceApiService,
         config_query= config_query
     )
     device_query = providers.Factory(
         DeviceMeasurementQueryUseCase,
         repo=device_repo,
-        api_service=api_service,
+        api_service=measurement_api_service,
     )
 
     measurement_repo = providers.Factory(MeasurementRepository)
@@ -149,7 +152,7 @@ class WorkerContainer(containers.DeclarativeContainer):
         alarm_def_query= alarm_def_query,
         alarm_command= alarm_command,
         event_command=event_command,
-        device_api_service=api_service
+        device_api_service=measurement_api_service
     )
 
     # Worker Flow Status
@@ -172,4 +175,13 @@ class WorkerContainer(containers.DeclarativeContainer):
         WorkerFlowStatusUpdateCommand,
         service=worker_flow_status_service,
         db_session=get_db_session
+    )
+    
+    worker_api_service = providers.Factory(
+        WorkerDeviceApiService,
+        config_query= config_query
+    )
+    send_offline_mode_signal_command = providers.Factory(
+        SendOfflineModeSignalCommand,
+        service=worker_api_service
     )

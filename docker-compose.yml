@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  measurements:
+    build: .
+    container_name: measurement-backend
+    volumes:
+      - ./:/app
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    networks:
+      - measurements
+    restart: always
+
+networks:
+  measurements:
+    external: true

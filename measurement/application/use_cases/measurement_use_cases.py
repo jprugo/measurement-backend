@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from measurement.domain.model.aggregate import Measure
 from measurement.domain.model.value_object import MeasureType
-from measurement.infra.api.device_api_service import DeviceApiService
+from measurement.infra.api.device_api_service import MeasurementDeviceApiService
 from measurement.infra.repository import MeasurementRepository
 from measurement.infra.api.device_repository import DeviceMeasureRepository, DeviceMeasure
 from measurement.domain.model.services.measurement_service import (
@@ -70,7 +70,7 @@ class CreateMeasurementCommand:
 
 
 class DeviceMeasurementQueryUseCase:
-    def __init__(self, repo: DeviceMeasureRepository, api_service: DeviceApiService):
+    def __init__(self, repo: DeviceMeasureRepository, api_service: MeasurementDeviceApiService):
         self.repo = repo
         self.api_service = api_service
 

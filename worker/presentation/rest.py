@@ -197,3 +197,12 @@ def post_event(
             alarm_type=alarm_type
         )
     )
+
+
+@router.post("/startOfflineMode")
+@inject
+def post_event(
+    command: CreateEventCommand = Depends(Provide[AppContainer.worker.send_offline_mode_signal_command])
+):
+    command.execute()
+    return {"status": "Offline mode activated!"}
