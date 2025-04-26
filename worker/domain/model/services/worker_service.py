@@ -1,6 +1,6 @@
 from typing import  List
 
-from measurement.infra.api.device_api_service import DeviceApiService
+from measurement.infra.api.device_api_service import MeasurementDeviceApiService
 from measurement.infra.api.response import DeviceMeasure
 from measurement.application.use_cases.measurement_use_cases import CreateMeasurementCommand, DeviceMeasurementQueryUseCase, CreateMeasurementRequest
 
@@ -30,7 +30,7 @@ class WorkerService:
         # MEASUREMENT
         measurement_command: CreateMeasurementCommand,
         measurement_query: DeviceMeasurementQueryUseCase,
-        device_api_service: DeviceApiService, 
+        device_api_service: MeasurementDeviceApiService, 
         # ALARM
         alarm_def_query: AlarmDefinitionQueryUseCase,
         alarm_command: CreateAlarmCommand,
