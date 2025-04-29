@@ -179,7 +179,8 @@ class WorkerContainer(containers.DeclarativeContainer):
     
     worker_api_service = providers.Factory(
         WorkerDeviceApiService,
-        config_query= config_query
+        config_query= config_query,
+        step_definition_query=query
     )
     send_offline_mode_signal_command = providers.Factory(
         SendOfflineModeSignalCommand,
