@@ -99,3 +99,12 @@ class StepDefinition(AggregateRoot):
             self.period=period
             self.lead=lead
             self.sensor_type=sensor_type
+
+    def get_times_to_be_executed(self):
+        return int(self._get_duration_in_secs() / self.period)
+
+    def _get_duration_in_secs(self):
+        return self.duration * 60
+
+    def _get_lead_in_secs(self):
+        return self.lead * 60

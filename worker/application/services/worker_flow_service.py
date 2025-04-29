@@ -31,7 +31,7 @@ class WorkerFlowService():
             step = data[0]
             measure_history: List[float] = []
             
-            times_to_be_executed = int(self._compute_iteration_time(step))
+            times_to_be_executed = step.get_times_to_be_executed()
             times_executed = status.times_executed
             logger.logger.info(f'Times executed = {times_executed}')
             logger.logger.info(f'Times to be executed = {times_to_be_executed}')
@@ -72,21 +72,13 @@ class WorkerFlowService():
         self._register_status(next_position, times_executed)
 
     def _register_status(self, position, times_executed: int):
+        logger.logger.info(f"Saving status in DB: {position}")
         self.worker_flow_status_command.execute(
             UpdateWorkerFlowStatusRequest(
                 position=position,
                 times_executed=times_executed
             )
         )
-
-    def _compute_iteration_time(self, step: StepDefinition):
-        return self._get_duration_in_secs(step) / step.period
-
-    def _get_duration_in_secs(self, step: StepDefinition):
-        return step.duration * 60
-
-    def _get_lead_in_secs(self, step: StepDefinition):
-        return step.lead * 60
 
     async def _lead_period(self, step: StepDefinition):
         logger.logger.info(f'Awaiting {step.period} seconds defined in period')
