@@ -4,7 +4,8 @@ from measurement.infra.api.device_api_service import MeasurementDeviceApiService
 from measurement.infra.api.response import DeviceMeasure
 from measurement.application.use_cases.measurement_use_cases import CreateMeasurementCommand, DeviceMeasurementQueryUseCase, CreateMeasurementRequest
 
-from worker.application.use_cases.step_definition_use_case import CreateEventCommand, StepDefinitionQueryUseCase, CreateEventCommandRequest
+from worker.application.use_cases.step_definition_use_case import StepDefinitionQueryUseCase
+from worker.application.use_cases.event_use_case import  CreateEventCommandRequest, CreateEventCommand
 from worker.domain.model.aggregate import StepDefinition
 from worker.domain.model.value_object import PositionType
 
@@ -83,8 +84,15 @@ class WorkerService:
             )
         )
 
-    def verify_alarm_level(self, measure: DeviceMeasure, measure_history: List[float]):
-        alarm_definitions = self.alarm_query.get_alarms_definition_by_measure_type(measure_type=measure.measure_type)
+    def verify_alarm_level(
+            self,
+            measure: DeviceMeasure,
+            measure_history: List[float]
+        ):
+        alarm_definitions = self.alarm_query.get_alarms_definition_by_measure_type(
+            measure_type=measure.measure_type,
+            measure_detail=measure.detail
+        )
         if alarm_definitions:
             for alarm_definition in alarm_definitions:
                 if alarm_definition.enabled:

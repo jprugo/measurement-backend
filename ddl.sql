@@ -22,11 +22,12 @@ CREATE TABLE IF NOT EXISTS alarm_definitions (
     config_value REAL NOT NULL,
     alarm_type TEXT NOT NULL,
     measure_type TEXT NOT NULL,
+    measure_detail TEXT,
     sound_path TEXT NOT NULL,
     created_at DATETIME NOT NULL,
     updated_at DATETIME,
     enabled BOOLEAN,
-    UNIQUE (alarm_type, measure_type)
+    UNIQUE (alarm_type, measure_type, measure_detail)
 );
 
 CREATE TABLE IF NOT EXISTS configurations (

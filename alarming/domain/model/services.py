@@ -30,6 +30,7 @@ class RegisterAlarmDefinitionRequest(BaseModel):
     value: float
     alarm_type: AlarmType
     measure_type: MeasureType
+    measure_detail: str = ""
     sound_path: str
 
 
@@ -61,6 +62,7 @@ class AlarmDefinitionService:
             config_value= request.value,
             sound_path= request.sound_path,
             measure_type= request.measure_type,
+            measure_detail=request.measure_detail,
             alarm_type= request.alarm_type
         )
         self.repo.add(instance=alarm_definition, session=session)
@@ -68,7 +70,7 @@ class AlarmDefinitionService:
 
 
     def update_alarm_definition(self, request: UpdateAlarmDefinitionRequest, session: Session) -> AlarmDefinition:
-        alarm_definition = self.repo.get_by_id(entity_id=request.id, session=session)
+        alarm_definition: AlarmDefinition = self.repo.get_by_id(entity_id=request.id, session=session)
         if not alarm_definition:
             raise ValueError("Alarm definition not found")
         alarm_definition.update(config_value= request.new_value, alarm_type= request.new_alarm_type, sound_path= request.new_sound_path, enabled= request.enabled)

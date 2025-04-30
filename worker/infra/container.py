@@ -19,7 +19,7 @@ from alarming.infra.repository import AlarmDefinitionRepository, AlarmRepository
 
 # Worker
 from worker.application.use_cases.worker_flow_status_use_case import WorkerFlowStatusQueryUseCase, WorkerFlowStatusUpdateCommand
-from worker.application.use_cases.communicate_with_device import SendOfflineModeSignalCommand
+from worker.application.use_cases.communicate_with_device import SendOfflineModeSignalCommand, SendOfflineDataSignalCommand
 from worker.infra.api.device_api_service import WorkerDeviceApiService
 
 from worker.domain.model.services.worker_flow_status_service import WorkerFlowStatusService
@@ -30,6 +30,8 @@ from worker.application.use_cases.step_definition_use_case import (
     UpdateStepDefinitionCommand,
     CreateStepDefinitionCommand,
     DeleteStepDefinitionCommand,
+)
+from worker.application.use_cases.event_use_case import (
     EventQueryUseCase, CreateEventCommand, DeleteEventCommand
 )
 
@@ -184,5 +186,9 @@ class WorkerContainer(containers.DeclarativeContainer):
     )
     send_offline_mode_signal_command = providers.Factory(
         SendOfflineModeSignalCommand,
+        service=worker_api_service
+    )
+    send_offline_data_signal_command = providers.Factory(
+        SendOfflineDataSignalCommand,
         service=worker_api_service
     )
