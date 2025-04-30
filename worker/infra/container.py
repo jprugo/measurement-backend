@@ -30,6 +30,8 @@ from worker.application.use_cases.step_definition_use_case import (
     UpdateStepDefinitionCommand,
     CreateStepDefinitionCommand,
     DeleteStepDefinitionCommand,
+)
+from worker.application.use_cases.event_use_case import (
     EventQueryUseCase, CreateEventCommand, DeleteEventCommand
 )
 

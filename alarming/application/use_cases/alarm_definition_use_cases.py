@@ -25,10 +25,18 @@ class AlarmDefinitionQueryUseCase:
             )
             return alarms_def
     
-    def get_alarms_definition_by_measure_type(self, measure_type: MeasureType) -> List[AlarmDefinition]:
+    def get_alarms_definition_by_measure_type(
+            self,
+            measure_type: MeasureType,
+            measure_detail: str
+        ) -> List[AlarmDefinition]:
         with self.db_session() as session:
             alarms_def: List[AlarmDefinition] = list(
-                self.repo.find_by_measure_type(session=session, measure_type= measure_type)
+                self.repo.find_by_measure_type_and_detail(
+                    session=session,
+                    measure_type=measure_type,
+                    measure_detail=measure_detail
+                )
             )
             return alarms_def
 

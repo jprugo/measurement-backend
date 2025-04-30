@@ -7,15 +7,17 @@ from alarming.domain.model.value_object import AlarmType
 from measurement.domain.model.value_object import MeasureType
 from worker.application.use_cases.worker_flow_status_use_case import UpdateWorkerFlowStatusRequest, WorkerFlowStatusUpdateCommand, WorkerFlowStatusQueryUseCase
 from worker.presentation.response import StepDefinitionResponse, StepDefinitionSchema
-from worker.application.use_cases.step_definition_use_case import (
+from worker.application.use_cases.event_use_case import (
     DeleteEventCommand,
+    EventQueryUseCase, CreateEventCommand, CreateEventCommandRequest
+)
+from worker.application.use_cases.step_definition_use_case import (
     StepDefinitionQueryUseCase,
     UpdateStepDefinitionCommand,
     UpdateStepDefinitionRequest,
     CreateStepDefinitionCommand,
     CreateStepDefinitionRequest,
     GetStepDefinitionRequest,
-    EventQueryUseCase, CreateEventCommand, CreateEventCommandRequest
 )
 from worker.domain.model.aggregate import StepDefinition
 from worker.domain.model.value_object import PositionType

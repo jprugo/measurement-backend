@@ -41,8 +41,15 @@ class AlarmRepository(RDBRepository):
 class AlarmDefinitionRepository(RDBRepository):
 
     @staticmethod
-    def find_by_measure_type(session: Session, measure_type: MeasureType) -> Query:
-        return session.query(AlarmDefinition).filter_by(measure_type=measure_type)
+    def find_by_measure_type_and_detail(
+            session: Session,
+            measure_type: MeasureType,
+            measure_detail: str
+        ) -> Query:
+        return session.query(AlarmDefinition).filter_by(
+            measure_type=measure_type,
+            measure_detail=measure_detail
+        )
 
 
     @staticmethod
