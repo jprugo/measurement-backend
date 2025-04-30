@@ -10,45 +10,67 @@ class AlarmDefinition(AggregateRoot):
     id: int
     config_value: float
     sound_path: str
-    measure_type: MeasureType
-    alarm_type: AlarmType
     created_at: datetime
     updated_at: datetime
     enabled: bool
+    # TODO: We are referencing value objects from another context (Measurement)
+    measure_type: MeasureType
+    measure_detail: str
+    # TODO: We are referencing value objects from another context (Alarming)
+    alarm_type: AlarmType
 
     @classmethod
     def create(
-        cls, config_value: float, sound_path: str, measure_type: str, alarm_type: str
+        cls,
+        config_value: float,
+        sound_path: str,
+        measure_type: str,
+        measure_detail: str,
+        alarm_type: str,
     ) -> AlarmDefinition:
         # Action
         return cls(
             config_value = config_value,
             sound_path = sound_path,
             measure_type = MeasureType(measure_type),
+            measure_detail=measure_detail,
             alarm_type= AlarmType(alarm_type),
             created_at= datetime.now(),
             enabled = True
         )
 
-    def update(self, config_value: float, alarm_type: str, sound_path: str, enabled: bool) -> None:
+    def update(
+            self, 
+            config_value: float,
+            alarm_type: str,
+            sound_path: str,
+            enabled: bool
+        ) -> None:
         self.config_value = config_value
         self.alarm_type = alarm_type
         self.sound_path = sound_path
         self.updated_at = datetime.now()
         self.enabled = enabled
 
+
 dataclass(eq=False)
 class Alarm(AggregateRoot):
     id: int
     measure_value: float
     config_value: float
-    measure_type: MeasureType
-    alarm_type: AlarmType
     created_at: datetime
+    # TODO: We are referencing value objects from another context (Measurement)
+    measure_type: MeasureType
+    # TODO: We are referencing value objects from another context (Alarming)
+    alarm_type: AlarmType
 
     @classmethod
     def create(
-        cls, measure_value: float, config_value: float, measure_type: str, alarm_type: str
+        cls,
+        measure_value: float,
+        config_value: float,
+        measure_type: str,
+        alarm_type: str
     ) -> Alarm:
         # Action
         return cls(

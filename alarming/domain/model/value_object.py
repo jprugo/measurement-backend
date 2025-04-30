@@ -4,15 +4,12 @@ from shared_kernel.domain.value_object import ValueObject
 from measurement.domain.model.aggregate import Measure
 import abc
 
+
 class AlarmType(ValueObject, str, enum.Enum):
     DESVEST = "DESVEST"
     GREATER_THAN = "GREATER_THAN"
     LOWER_THAN = "LOWER_THAN"
 
-class AlarmTypeBase(abc.ABC):
-    @abc.abstractmethod
-    def check(self, parametrized_value: float, measures: List[Measure]) -> bool:
-        pass
 
 class AlarmTypeFactory:
     @staticmethod
@@ -24,7 +21,14 @@ class AlarmTypeFactory:
         elif alarm_type == AlarmType.LOWER_THAN:
             return LowerThanAlarmType()
         raise ValueError("Invalid alarm type")
-    
+
+
+# ALARM TYPE
+class AlarmTypeBase(abc.ABC):
+    @abc.abstractmethod
+    def check(self, parametrized_value: float, measures: List[Measure]) -> bool:
+        pass
+
 
 class LowerThanAlarmType(AlarmTypeBase):
     def check(self, parametrized_value: float, measures: List[Measure]) -> bool:

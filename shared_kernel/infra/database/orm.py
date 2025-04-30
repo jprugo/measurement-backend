@@ -48,6 +48,7 @@ alarms_definition_table = Table(
     Column("config_value", Float, nullable=False),
     Column("alarm_type", String, nullable=False),
     Column("measure_type", String, nullable=False),
+    Column("measure_detail", String, nullable=True),
     Column("sound_path", String, nullable=False),
     Column("created_at", DateTime, nullable=False),
     Column("updated_at", DateTime, nullable=True),
