@@ -20,11 +20,14 @@ class WorkerFlowService():
         self.worker_flow_status_command = worker_flow_status_command
         
     async def handle(self):
+        
         status: WorkerFlowStatus = self.worker_flow_status_query.get_worker_flow_status()
 
         position = PositionType.from_value(status.position)
         logger.logger.info(f"Handling position: {position}")
         
+        self.__try_send_stop_signal()
+
         # Step Definition Query
         data = self.worker_service.get_step_definition_from_position(position)
         if data:
@@ -37,27 +40,44 @@ class WorkerFlowService():
             logger.logger.info(f'Times to be executed = {times_to_be_executed}')
 
             while times_executed < times_to_be_executed:
-                measures = self.worker_service.get_measure(step)
-                logger.logger.info('Saving measure and verifying alarm level')
+                try:
+                    measures = self.worker_service.get_measure(step)
 
-                for measure in measures:
-                    self.worker_service.register_measure(measure, measure_history)
-                    self.worker_service.verify_alarm_level(measure, measure_history)
+                    logger.logger.info('Saving measure and verifying alarm level')
+                    for measure in measures:
+                        self.worker_service.register_measure(measure, measure_history)
+                        self.worker_service.verify_alarm_level(measure, measure_history)
 
-                logger.logger.info('End measure and verifying alarm level')
+                    logger.logger.info('End measure and verifying alarm level')
 
-                await self._lead_period(step)
+                    await self._lead_period(step)
 
-                self._prepare_next_iteration(position, times_executed)
-                times_executed += 1
+                    self._prepare_next_iteration(position, times_executed)
+                    times_executed += 1
+                except:
+                    logger.logger.error(
+                        "!!!!!!!!!!!!!!! Can't reach device to get measures for position: [%s]!!!!!!!!!!!!!!!", 
+                        position
+                    )
+                    raise Exception("Communication lost with the device.")
 
             await self._lead_final(step)
-            if step.sensor_type == SensorType.ISO:
-                logger.logger.info("Isolation sensor detected then sending stop signal")
-                self.worker_service.stop_measure()
         else:
             position = PositionType.FIRST
         self._prepare_next_step(position, times_executed)
+
+    def __try_send_stop_signal(self):
+        try:
+            logger.logger.info("*************** Sending stop signal ****************")
+            self.worker_service.stop_measure()
+        except Exception:
+            self.worker_service._register_event(
+                "ATENCION",
+                "Error de comunicacion durante la orden de detención de sensor",
+                None,
+                None
+            )
+            logger.logger.info("!!!!!!!!!!!!!!! Can't send stop singal !!!!!!!!!!!!!!!")
 
     def _prepare_next_iteration(self, position: PositionType, times_executed: int):
         logger.logger.info("Moving to next iteration")

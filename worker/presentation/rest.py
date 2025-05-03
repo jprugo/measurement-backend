@@ -1,4 +1,3 @@
-import time
 from typing import List, Optional
 import asyncio
 from dependency_injector.wiring import Provide, inject
@@ -92,15 +91,22 @@ async def start(
         )
 
         async def run_worker():
-            while True:
-                await worker_service.handle()
-                time.sleep(10)
-                
-        worker_task = asyncio.create_task(run_worker())
+            global worker_service, worker_task
+            try:
+                while True:
+                    await worker_service.handle()
+                    await asyncio.sleep(10)
+            except asyncio.CancelledError:
+                print("Worker task cancelled")
+            except Exception as e:
+                print(f"Error in worker task: {e}")
+                worker_service = None
+                worker_task = None
 
+        worker_task = asyncio.create_task(run_worker())
         return {"status": "Task started"}
     else:
-        return {"status": "Task resumed"}
+        return {"status": "Task already running"}
 
 
 @router.get("/stop")

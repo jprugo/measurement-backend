@@ -54,8 +54,8 @@ class CreateEventCommand:
                     instance=Event.create(
                         title=request.title,
                         description=request.description,
-                        measure_type=request.measure_type.vale,
-                        alarm_type=request.alarm_type.value
+                        measure_type=request.measure_type.value if request.measure_type is not None else None,
+                        alarm_type=request.alarm_type.value if request.alarm_type is not None else None
                     )
                 )
                 session.commit()
