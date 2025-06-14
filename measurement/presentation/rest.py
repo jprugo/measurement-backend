@@ -22,6 +22,7 @@ from measurement.application.use_cases.sensor_use_cases import (
     CreateSensorCommand, GetSensorByIdRequest, SensorQueryUseCase, GetSensorRequest, DeleteSensorCommand
 )
 from shared_kernel.infra.container import AppContainer
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/measurement", tags=['measurement'])
 
@@ -143,6 +144,18 @@ def post_measurement(
     command: CreateMeasurementCommand = Depends(Provide[AppContainer.measurement.create_measurement_command]),
 ) -> None:
     command.execute(request=request)
+
+class MeasuresListSchema(BaseModel):
+    measures: List[CreateMeasurementRequest]
+
+@router.post("/list")
+@inject
+def post_measurement_list(
+    request: MeasuresListSchema,
+    command: CreateMeasurementCommand = Depends(Provide[AppContainer.measurement.create_measurement_command]),
+) -> None:
+    for measure in request.measures:
+        command.execute(request=measure)
 
 @router.get("/units")
 @inject
