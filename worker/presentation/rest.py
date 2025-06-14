@@ -208,3 +208,12 @@ def post_event(
 ):
     command.execute()
     return {"status": "Offline mode activated!"}
+
+
+@router.post("/sendOfflineData")
+@inject
+def post_event(
+    command: CreateEventCommand = Depends(Provide[AppContainer.worker.send_offline_data_signal_command])
+):
+    command.execute()
+    return {"status": "Offline data will be saved in DB!"}

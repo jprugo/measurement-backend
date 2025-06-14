@@ -29,6 +29,7 @@ class AlarmDefinitionSchema(BaseModel):
     config_value: float
     sound_path: str
     measure_type: MeasureType
+    measure_detail: str
     alarm_type: AlarmType
     created_at: datetime
     updated_at: Optional[datetime]

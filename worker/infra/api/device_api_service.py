@@ -24,6 +24,12 @@ class WorkerDeviceApiService:
         response = requests.post(full_path, json=self.__map_step_definition_body())
         logger.logger.info(f'Response: {response.status_code}')
 
+    def send_offline_data(self) -> None:
+        full_path = f"{self.base_url}/sendOfflineData"
+        logger.logger.info(f'Making request to: {full_path}')
+        response = requests.post(full_path)
+        logger.logger.info(f'Response: {response.status_code}')
+
     def __map_step_definition_body(self) -> dict[str, any]:
         step_definitions = self.step_definition_query.get_all_step_definition()
         map_result = map(lambda s: {
