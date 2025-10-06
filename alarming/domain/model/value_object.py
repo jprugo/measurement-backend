@@ -32,13 +32,15 @@ class AlarmTypeBase(abc.ABC):
 
 class LowerThanAlarmType(AlarmTypeBase):
     def check(self, parametrized_value: float, measures: List[Measure]) -> bool:
-        return measures[-1] < parametrized_value
+        latest_value = measures[-1]
+        return latest_value < parametrized_value
 
 
 class GreaterThanAlarmType(AlarmTypeBase):
     def check(self, parametrized_value: float, measures: List[Measure]) -> bool:
-        return measures[-1] > parametrized_value
-    
+        latest_value = measures[-1]
+        return latest_value > parametrized_value
+
 
 class DesvestAlarmType(AlarmTypeBase):
     def check(self, parametrized_value: float, measures: List[Measure]) -> bool:
